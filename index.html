@@ -188,12 +188,26 @@ body{font-size:15px}button,input,select,textarea{font-size:16px}
 .vendorRows{border-top:1px solid var(--border);margin:12px 0}.vendorLine,.vendorHistoryLine{display:flex;gap:10px;padding:12px 2px;border-bottom:1px solid var(--border);align-items:center;justify-content:space-between}.vendorLine input{width:20px;height:20px;flex-shrink:0}.vendorLineInfo{flex:1;min-width:0}.vendorLineInfo small,.vendorHistoryLine small{display:block;line-height:1.6;overflow-wrap:anywhere}.vendorHistoryLine>div{min-width:0}.vendorLine b,.vendorHistoryLine b{white-space:nowrap}
 @media(max-width:600px){.adminTabs{grid-template-columns:repeat(4,minmax(0,1fr))!important}.adminTabs button{font-size:11px!important;padding:10px 1px!important}.vendorStats{grid-template-columns:1fr 1fr}.vendorStats .vendorStat:last-child{grid-column:span 2}}
 
+
+/* V9.9 各店同一份日本郵便公告；手機橫向表格避免文字擠壓 */
+.shippingRateNotice{margin:12px 0 18px;background:#f8f6fb;border:1px solid #d9d3e2;color:#302d39;border-radius:13px;padding:13px}
+.shippingRateNotice[hidden]{display:none!important}
+.shippingRateHead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px;margin-bottom:10px}
+.shippingRateHead span,.shippingRateNotice p{font-size:12px;color:#686071;line-height:1.55}
+.shippingRateScroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.shippingRateTable{width:100%;min-width:360px;border-collapse:collapse;font-size:12px;text-align:right}
+.shippingRateTable th,.shippingRateTable td{padding:10px 6px;border-bottom:1px solid #dfdae5;white-space:nowrap}
+.shippingRateTable th:first-child{text-align:left}
+.shippingRateTable td small{display:block;color:#776781;font-size:11px}
+.shippingRateTable td[data-active],.shippingRateTable th[data-active]{background:#eae2f3;color:#382258}
+.shippingRateSource a{color:#653b98;text-decoration:underline}
+@media(max-width:600px){.shippingRateNotice{padding:10px}.shippingRateTable{min-width:330px}}
 </style></head>
 <body data-channel="partner" data-shop-name="瘋Toys 動漫公仔周邊"><main class="wrap">
  <header class="brand"><div><h1 id="shopBrand">瘋Toys 動漫公仔周邊</h1><small>JAPAN LIVE · 大阪連線</small></div><span class="headerTag" id="shopBadge">大阪連線</span></header>
  <nav class="nav"><button id="tabShop" onclick="switchTab('shop')" class="active">逛商品</button><button id="tabCart" onclick="switchTab('cart')">購物車 <span id="cartCount">0</span></button><button id="tabOrder" onclick="switchTab('order')">查詢訂單</button></nav>
  <div id="content"></div>
- <footer class="siteFooter"><span>© <span id="footerShop">瘋Toys 動漫公仔周邊</span> · 日圓換算報價 <span id="footerRate">×0.27</span> · 運費另計 · V9.8</span><button class="adminSecret" aria-label="開啟店主後台" title="店主" onclick="openAdmin()">⚙</button></footer>
+ <footer class="siteFooter"><span>© <span id="footerShop">瘋Toys 動漫公仔周邊</span> · 日圓換算報價 <span id="footerRate">×0.27</span> · 運費另計 · V9.9</span><button class="adminSecret" aria-label="開啟店主後台" title="店主" onclick="openAdmin()">⚙</button></footer>
 </main><div id="adminOverlay" hidden class="adminOverlay" onclick="if(event.target===this)closeAdmin()"><aside class="adminDrawer" role="dialog" aria-modal="true" aria-labelledby="adminTitle"><header class="adminTop"><div><small>MANAGEMENT</small><h2 id="adminTitle">店主後台</h2></div><button class="closeAdmin" aria-label="關閉後台" onclick="closeAdmin()">✕</button></header><div id="adminSurface"></div></aside></div><div id="toast" hidden class="flash"></div>
 <script>
 // JPM V9.6.2：此網頁直接指定已確認的 GAS 部署網址，避免舊 config.js 快取導致未連線。
@@ -214,8 +228,25 @@ const CATEGORIES=['未分類','卡牌類','公仔類','家電類','雜物類','�
 function opts(list,selected,allLabel){return (allLabel?`<option value="">${H(allLabel)}</option>`:'')+list.map(v=>`<option value="${H(v)}" ${v===selected?'selected':''}>${H(v)}</option>`).join('');}
 const money=n=>'NT$'+Number(n||0).toLocaleString('zh-TW'), yen=n=>'¥'+Number(n||0).toLocaleString('ja-JP'), twd=n=>Math.round(Number(n||0)*SHOP_RATE), quote=n=>({total:twd(n)}), date=n=>n?new Date(Number(n)).toLocaleString('zh-TW',{hour12:false}):'－';
 const statusName={REQUESTED:'待確認是否買得到',AWAITING_PAYMENT:'請在1小時內轉台幣全額',PAYMENT_REPORTED:'已回報全額匯款／待核帳',PAID:'全額已確認／待採購',BOUGHT:'店家已購得・準備配送',SHIPPING_SELECTED:'已選好配送方式',SHIPPED:'已出貨',COMPLETED:'已完成',UNAVAILABLE:'目前無法購得',CANCELLED:'轉帳逾時取消',REFUND_PENDING:'缺貨待退款'};
-const shipName={SHARED:SHOP_CHANNEL==='partner'?'一起集運到瘋Toys':'一起集運到頑夜店內',POST:'日本郵局寄回台灣'};
+const shipName={SHARED:SHOP_CHANNEL==='partner'?'一起集運到瘋Toys':'一起集運到頑夜店內',POST:'日本郵局寄台灣（舊訂單・方式未細分）',EMS:'EMS 國際快捷',AIR:'日本空運（國際小包）',SEA:'日本海運（國際小包）'};
 function shipLabel(type,ch){return type==='SHARED'?(ch==='partner'?'一起集運到瘋Toys':'一起集運到頑夜店內'):(shipName[type]||'待店家確認');}
+
+// 日本郵便第一地帶（中國／韓國／台灣），官方公開重量級距參考；價格非本店運費報價。
+const JP_POST_RATES={
+  weightKg:[0.5,1,2,3,5,10],
+  EMS:[1450,2200,3400,4400,6400,10600],
+  AIR:[2050,2050,2750,3450,4850,8350],
+  SEA:[1800,1800,2200,2600,3400,5400]
+};
+const JP_POST_EMS_URL='https://www.post.japanpost.jp/send/oversea/charge/list-ems/zone1.html';
+const JP_POST_PARCEL_URL='https://www.post.japanpost.jp/send/oversea/charge/list-parcel/zone1_en.html';
+function isDirectShipping(type){return ['EMS','AIR','SEA','POST'].includes(String(type||''));}
+function shippingReferenceHtml(){
+ const weights=JP_POST_RATES.weightKg;
+ const rows=weights.map((w,i)=>`<tr><th scope="row">${w} kg 以下</th>${['EMS','AIR','SEA'].map(k=>`<td data-rate-type="${k}"><b>${yen(JP_POST_RATES[k][i])}</b><small>約 ${money(twd(JP_POST_RATES[k][i]))}</small></td>`).join('')}</tr>`).join('');
+ return `<div class="shippingRateNotice" id="shippingRateReference" hidden><div class="shippingRateHead"><b>日本郵便寄台灣・運費參考表</b><span>依包裹重量估算</span></div><div class="shippingRateScroll"><table class="shippingRateTable"><thead><tr><th scope="col">重量</th><th scope="col" data-rate-type="EMS">EMS</th><th scope="col" data-rate-type="AIR">日本空運</th><th scope="col" data-rate-type="SEA">日本海運</th></tr></thead><tbody>${rows}</tbody></table></div><p>上表為日本郵便寄往台灣的國際郵寄基本資費，每格上方為日幣、下方為本商城 ×${SHOP_RATE.toFixed(2)} 的台幣參考值；僅供比較，不代表已收取或承諾的運費。</p><p>正式運費以實際打包重量、尺寸、郵便受理條件與店家最終報價為準；包材、額外服務、關稅或進口稅費可能另計。部分電池、液體及特殊商品可能無法郵寄。</p><p class="shippingRateSource">日本郵便官方：<a href="${JP_POST_EMS_URL}" target="_blank" rel="noopener noreferrer">EMS 費率</a> · <a href="${JP_POST_PARCEL_URL}" target="_blank" rel="noopener noreferrer">空運／海運費率</a></p></div>`;
+}
+
 function notify(msg,bad=false){const el=$('#toast');el.textContent=msg;el.hidden=false;el.style.background=bad?'#f6bbc7':'#eedcff';clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.hidden=true,4500);}
 function rpc(action,arg={}){return window.NightBridge.rpc(action,Object.assign({},arg,{channel:SHOP_CHANNEL}));}
 async function run(p){try{return await p;}catch(e){notify(e.message,true);throw e;}}
@@ -299,7 +330,7 @@ function renderCart(){
  $('#content').innerHTML=`<section class="panel checkoutSection"><h2>購物車</h2>${state.cart.length?state.cart.map(i=>`<div class="cartItem"><img src="${THUMB_PLACEHOLDER}" data-photo-id="${H(i.id)}" alt="商品照片"><div class="cartItemBody"><strong>${yen(i.price)}</strong><small>台幣 ${money(quote(i.price).total)}／件</small></div><div class="qtyControl"><button aria-label="減少數量" data-minus="${H(i.id)}">−</button><b>${i.qty}</b><button aria-label="增加數量" data-plus="${H(i.id)}">＋</button></div></div>`).join(''):'購物車目前沒有商品'}<div class="totalRow"><span>商品日圓總額</span><strong>${yen(totalJpy)}</strong></div><div class="totalRow totalPay"><span>應付台幣全額</span><strong>${money(amountTwd)}</strong></div><p class="hint">國際運費依配送方式另行報價，商品款為全額收取，沒有訂金及尾款。</p></section>`+
  (state.cart.length?`<section class="panel checkoutSection"><h2>填寫代購資料</h2><p class="hint">先選擇配送方式，再填寫需要的資料。店主確認買得到後，才會開始 1 小時轉帳倒數。</p>
  <div class="checkoutStepLabel"><span class="checkoutStepNum">1</span><strong>先選配送方式 <b class="required">*</b></strong></div>
- <div class="deliveryOptions"><label class="deliveryChoice"><input type="radio" name="delivery" value="SHARED" onchange="updateCheckoutDelivery()"><span><b>${H(shipName.SHARED)}</b><small>國際運費大家分攤；到台灣後另外報價</small></span></label><label class="deliveryChoice"><input type="radio" name="delivery" value="POST" onchange="updateCheckoutDelivery()"><span><b>日本郵局寄回台灣</b><small>郵資及可能的稅費另行報價，需要完整台灣地址</small></span></label></div>
+ <div class="deliveryOptions"><label class="deliveryChoice"><input type="radio" name="delivery" value="SHARED" onchange="updateCheckoutDelivery()"><span><b>${H(shipName.SHARED)}</b><small>國際運費大家分攤；到台灣後另外報價</small></span></label><label class="deliveryChoice"><input type="radio" name="delivery" value="EMS" onchange="updateCheckoutDelivery()"><span><b>EMS 國際快捷</b><small>日本郵便快捷寄台灣；郵資另計，需完整台灣地址</small></span></label><label class="deliveryChoice"><input type="radio" name="delivery" value="AIR" onchange="updateCheckoutDelivery()"><span><b>日本空運（國際小包）</b><small>日本郵便一般航空小包；郵資另計，需完整台灣地址</small></span></label><label class="deliveryChoice"><input type="radio" name="delivery" value="SEA" onchange="updateCheckoutDelivery()"><span><b>日本海運（國際小包）</b><small>日本郵便船便，通常較省但等待較久；郵資另計，需完整台灣地址</small></span></label></div>${shippingReferenceHtml()}
  <div class="savedProfileBar"><span>常用購買資料</span><div class="row"><button type="button" onclick="restoreSavedProfile(true)">帶入上次資料</button><button type="button" onclick="clearSavedProfile()">清除儲存</button></div><label class="saveProfileConsent"><input type="checkbox" id="saveBuyerProfile"> 將本次購買資料儲存在這台裝置，方便下次使用（共用手機請勿勾選）</label><small>只儲存在此瀏覽器，不會建立帳號；英文郵寄資料每次下單仍須自行確認。</small></div>
  <div id="checkoutContactFields" hidden>
  <div class="checkoutStepLabel"><span class="checkoutStepNum">2</span><strong id="checkoutContactTitle">填寫聯絡資料</strong></div>
@@ -334,14 +365,15 @@ function readSavedProfile(){try{const x=JSON.parse(localStorage.getItem(PROFILE_
 function restoreSavedProfile(manual){
  const v=readSavedProfile();
  if(!v){if(manual)notify('這台裝置尚未儲存購買資料',true);return;}
- const r=document.querySelector('input[name="delivery"][value="'+v.shippingType+'"]');
+ const savedDelivery=v.shippingType==='POST'?'':v.shippingType;
+ const r=document.querySelector('input[name="delivery"][value="'+savedDelivery+'"]');
  if(r){r.checked=true;updateCheckoutDelivery();}
  const map={buyerName:v.name,buyerPhone:v.phone,buyerLineId:v.lineId,postReceiverPostalCode:v.postalCode,postReceiverAddress:v.address,postReceiverNameEn:v.nameEn,postReceiverAddressEn:v.addressEn};
  for(const [id,value] of Object.entries(map)){const el=document.getElementById(id);if(el)el.value=value||'';}
  const keep=$('#saveBuyerProfile');if(keep)keep.checked=true;
- const msg=$('#postalConvertStatus');if(msg&&v.shippingType==='POST')msg.textContent='已帶入上次英文地址，請重新核對並勾選確認';
+ const msg=$('#postalConvertStatus');if(msg&&isDirectShipping(v.shippingType))msg.textContent='已帶入上次英文地址，請重新核對並勾選確認';
  resetPostalConfirm();
- if(manual)notify('已帶入上次儲存的購買資料');
+ if(manual)notify(v.shippingType==='POST'?'已帶入舊版郵寄資料，請重新選擇 EMS、空運或海運':'已帶入上次儲存的購買資料');
 }
 function clearSavedProfile(){
  if(!confirm('只刪除這台裝置儲存的購買資料，不影響已下的訂單。確定清除？'))return;
@@ -352,22 +384,23 @@ function clearSavedProfile(){
 function saveSavedProfile(shippingType){
  if(!$('#saveBuyerProfile')?.checked){try{localStorage.removeItem(PROFILE_KEY);}catch(e){}return;}
  const o={version:1,shippingType,name:$('#buyerName')?.value.trim()||'',phone:normalizePhoneUi($('#buyerPhone')?.value||''),lineId:$('#buyerLineId')?.value.trim()||''};
- if(shippingType==='POST')Object.assign(o,{postalCode:$('#postReceiverPostalCode')?.value.trim()||'',address:$('#postReceiverAddress')?.value.trim()||'',nameEn:$('#postReceiverNameEn')?.value.trim()||'',addressEn:$('#postReceiverAddressEn')?.value.trim()||''});
+ if(isDirectShipping(shippingType))Object.assign(o,{postalCode:$('#postReceiverPostalCode')?.value.trim()||'',address:$('#postReceiverAddress')?.value.trim()||'',nameEn:$('#postReceiverNameEn')?.value.trim()||'',addressEn:$('#postReceiverAddressEn')?.value.trim()||''});
  try{localStorage.setItem(PROFILE_KEY,JSON.stringify(o));}catch(e){notify('瀏覽器不允許儲存資料，下次可能需要重新填寫',true);}
 }
 function updateCheckoutDelivery(){
  const type=document.querySelector('input[name="delivery"]:checked')?.value||'';
  const contact=$('#checkoutContactFields'),postal=$('#postAddressFields');
  if(contact)contact.hidden=!type;
- if(postal)postal.hidden=type!=='POST';
+ if(postal)postal.hidden=!isDirectShipping(type);
+ const rates=$('#shippingRateReference');if(rates){rates.hidden=!isDirectShipping(type);rates.querySelectorAll('[data-rate-type]').forEach(el=>{const active=el.getAttribute('data-rate-type')===(type==='POST'?'EMS':type);if(active)el.setAttribute('data-active','');else el.removeAttribute('data-active');});}
  const nameLabel=$('#buyerNameLabel'),phoneLabel=$('#buyerPhoneLabel'),title=$('#checkoutContactTitle'),hint=$('#checkoutContactHint');
- if(nameLabel)nameLabel.innerHTML=type==='POST'?'收件人中文姓名 <b class="required">*</b>':'聯絡姓名 <b class="required">*</b>';
- if(phoneLabel)phoneLabel.innerHTML=type==='POST'?'收件手機 <b class="required">*</b>':'手機號碼 <b class="required">*</b>';
- if(title)title.textContent=type==='POST'?'填寫收件人資料':'填寫聯絡資料';
- if(hint)hint.textContent=type==='POST'?'此姓名與手機會同時用於聯絡及日本郵便寄件，不需要再填第二次。':'集運到'+(SHOP_CHANNEL==='partner'?'瘋Toys':'頑夜門市')+'只需聯絡資料，不必填台灣郵寄地址。';
+ if(nameLabel)nameLabel.innerHTML=isDirectShipping(type)?'收件人中文姓名 <b class="required">*</b>':'聯絡姓名 <b class="required">*</b>';
+ if(phoneLabel)phoneLabel.innerHTML=isDirectShipping(type)?'收件手機 <b class="required">*</b>':'手機號碼 <b class="required">*</b>';
+ if(title)title.textContent=isDirectShipping(type)?'填寫收件人資料':'填寫聯絡資料';
+ if(hint)hint.textContent=isDirectShipping(type)?'此姓名與手機會同時用於聯絡及日本郵便寄件，不需要再填第二次。':'集運到'+(SHOP_CHANNEL==='partner'?'瘋Toys':'頑夜門市')+'只需聯絡資料，不必填台灣郵寄地址。';
  // 換配送方式後，舊的英文收件確認不可沿用。
  resetPostalConfirm();clearTimeout(postalPreviewTimer);postalRequestNum++;
- if(type==='POST')schedulePostalPreview();
+ if(isDirectShipping(type))schedulePostalPreview();
 }
 let postalPreviewTimer=null, postalRequestNum=0;
 function resetPostalConfirm(){const el=$('#postEnglishConfirm');if(el)el.checked=false;}
@@ -378,7 +411,7 @@ function markPostalDirty(){
 }
 function schedulePostalPreview(){
   clearTimeout(postalPreviewTimer);
-  if(document.querySelector('input[name="delivery"]:checked')?.value!=='POST')return;
+  if(!isDirectShipping(document.querySelector('input[name="delivery"]:checked')?.value))return;
   const name=$('#buyerName')?.value.trim()||'',address=$('#postReceiverAddress')?.value.trim()||'',zip=($('#postReceiverPostalCode')?.value||'').replace(/\D/g,'');
   if(!name||address.length<8||![3,5,6].includes(zip.length))return;
   postalPreviewTimer=setTimeout(()=>generatePostalPreview(),700);
@@ -392,7 +425,7 @@ async function generatePostalPreview(){
   resetPostalConfirm();
   try{
     const r=await rpc('postalPreview',{receiver,receiverAddress,receiverPostalCode});
-    if(serial!==postalRequestNum||document.querySelector('input[name="delivery"]:checked')?.value!=='POST'||!$('#postAddressFields')||$('#buyerName').value.trim()!==receiver||$('#postReceiverAddress').value.trim()!==receiverAddress||$('#postReceiverPostalCode').value.replace(/\D/g,'')!==receiverPostalCode)return;
+    if(serial!==postalRequestNum||!isDirectShipping(document.querySelector('input[name="delivery"]:checked')?.value)||!$('#postAddressFields')||$('#buyerName').value.trim()!==receiver||$('#postReceiverAddress').value.trim()!==receiverAddress||$('#postReceiverPostalCode').value.replace(/\D/g,'')!==receiverPostalCode)return;
     $('#postReceiverNameEn').value=r.receiverNameEn||'';
     $('#postReceiverAddressEn').value=r.receiverAddressEn||'';
     $('#postalWarnings').textContent=(r.warnings||[]).map(x=>'• '+x).join('\n');
@@ -421,18 +454,18 @@ async function checkoutNow(){
  if(!shippingType)return notify('請先選好配送方式',true);
  const combinePayment=$('#combinePay')?.checked===true,buyerPayKey=combinePayment?getBuyerPayKey():'';
  if(combinePayment&&!buyerPayKey)return notify('目前瀏覽器無法儲存合併匯款資料，請取消勾選或改用一般瀏覽器',true);
- const receiver=shippingType==='POST'?name:'',receiverPhone=shippingType==='POST'?phone:'',receiverAddress=$('#postReceiverAddress')?.value.trim()||'';
+ const receiver=isDirectShipping(shippingType)?name:'',receiverPhone=isDirectShipping(shippingType)?phone:'',receiverAddress=$('#postReceiverAddress')?.value.trim()||'';
  const receiverPostalCode=($('#postReceiverPostalCode')?.value||'').replace(/\D/g,''),receiverNameEn=$('#postReceiverNameEn')?.value.trim()||'',receiverAddressEn=$('#postReceiverAddressEn')?.value.trim()||'';
- if(shippingType==='POST'){
+ if(isDirectShipping(shippingType)){
    if(!receiver||!/^09\d{8}$/.test(receiverPhone)||receiverAddress.length<8||!/^\d{3}(?:\d{2,3})?$/.test(receiverPostalCode))return notify('郵局寄送須填收件姓名、手機、完整地址和郵遞區號',true);
    if(!/^[A-Za-z][A-Za-z .'\-]{1,99}$/.test(receiverNameEn)||!/[A-Za-z]/.test(receiverAddressEn)||/[\u3400-\u9fff]/.test(receiverAddressEn)||receiverAddressEn.length<12)return notify('請確認日本郵便用的英文收件姓名和地址',true);
    if(!$('#postEnglishConfirm')?.checked)return notify('請先核對英文地址及英文姓名並勾選確認',true);
  }
  const totalJpy=state.cart.reduce((s,i)=>s+i.price*i.qty,0);
- if(!confirm('最後確認下訂\n商品台幣全額：'+money(quote(totalJpy).total)+'\n配送：'+shipName[shippingType]+(shippingType==='POST'?'\n英文收件人：'+receiverNameEn+'\n英文地址：'+receiverAddressEn+'\n郵遞區號：'+receiverPostalCode+' TAIWAN':'')+'\n國際運費另計\n\n確認後原則上不得任意取消。確定送出？'))return;
+ if(!confirm('最後確認下訂\n商品台幣全額：'+money(quote(totalJpy).total)+'\n配送：'+shipName[shippingType]+(isDirectShipping(shippingType)?'\n英文收件人：'+receiverNameEn+'\n英文地址：'+receiverAddressEn+'\n郵遞區號：'+receiverPostalCode+' TAIWAN':'')+'\n國際運費另計\n\n確認後原則上不得任意取消。確定送出？'))return;
  const btn=$('#checkoutBtn');btn.disabled=true;
  try{
-   const x=await rpc('checkout',{name,phone,lineId,shippingType,receiver,receiverPhone,receiverAddress,receiverPostalCode,receiverNameEn,receiverAddressEn,receiverEnglishConfirmed:shippingType==='POST'&&$('#postEnglishConfirm')?.checked===true,items:state.cart.map(i=>({id:i.id,qty:i.qty})),combinePayment,buyerPayKey,termsAccepted:true,termsVersion:PURCHASE_TERMS_VERSION});
+   const x=await rpc('checkout',{name,phone,lineId,shippingType,receiver,receiverPhone,receiverAddress,receiverPostalCode,receiverNameEn,receiverAddressEn,receiverEnglishConfirmed:isDirectShipping(shippingType)&&$('#postEnglishConfirm')?.checked===true,items:state.cart.map(i=>({id:i.id,qty:i.qty})),combinePayment,buyerPayKey,termsAccepted:true,termsVersion:PURCHASE_TERMS_VERSION});
    saveSavedProfile(shippingType);state.cart=[];updateCart();state.lookupPhone=phone;
    try{localStorage.setItem(SHOP_PREFIX+'lookup_phone',phone);}catch(e){}
    switchTab('order');notify('下單成功！已用你的手機號碼查詢訂單進度');await lookupNow();
@@ -687,7 +720,7 @@ async function adminOrders(){
  const [os,queue]=await Promise.all([rpc('adminOrders',{token:state.token}),rpc('pendingPayments',{token:state.token})]);state.adminOrders=os;state.pendingQueue=queue;
  const paymentGroups=new Map();os.forEach(o=>{if(o.paymentGroupId){const g=String(o.paymentGroupId);if(!paymentGroups.has(g))paymentGroups.set(g,[]);paymentGroups.get(g).push(o);}});
  const pending=os.filter(o=>o.status==='AWAITING_PAYMENT'),tails=[...new Set(pending.map(o=>String(o.contact||'').replace(/\D/g,'').slice(-3)))].filter(x=>/^\d{3}$/.test(x));
- const content=os.map(o=>`<article class="listItem adminOrderCard" data-sales-channel="${H(o.salesChannel||'wanye')}"><label class="batchOrderLabel"><input class="pickOrder" type="checkbox" value="${H(o.id)}" data-status="${H(o.status)}"> 勾選這筆訂單</label><div class="row between"><span class="tag">${H(statusName[o.status]||o.status)}</span><small>${date(o.createdAt)}</small></div><div class="row between"><b>${H(o.customerName||'未提供姓名')}</b><b class="price">${money(o.amountTwd)}</b></div><p><span class="tag">${H(o.shopLabel||'頑夜 TOY')} · ×${Number(o.fxRate||0.25).toFixed(2)}</span></p><p><small>手機：${H(o.contact)}　｜　LINE：${H(o.lineId||'舊訂單未填')}</small></p><p><small>配送：${H(shipLabel(o.shippingType,o.salesChannel||'wanye'))}</small></p>${o.freight!==null?`<p class="hint">運費報價：${o.freightJpy!==null?yen(o.freightJpy)+' × '+Number(o.freightFxRate||(o.salesChannel==='partner'?0.27:0.25)).toFixed(2)+' ＝ ':'舊版台幣報價：'}${money(o.freight)}</p>`:''}${o.paymentGroupId?`<p class="shipmentTag">合併匯款 ${paymentGroups.get(String(o.paymentGroupId))?.length||'?'} 筆 · 這一組共 ${money((paymentGroups.get(String(o.paymentGroupId))||[]).reduce((n,x)=>n+Number(x.amountTwd||0),0))} · 只需一筆入帳，同組一起確認收款</p>`:''}${o.shipmentGroupId?`<p class="shipmentTag">合併配送組：${H(o.shipmentGroupId)} ${o.shipmentLeader?'· 主單':''}</p>`:''}<div class="orderProducts">${o.items.map(i=>`<div class="orderLine"><span class="orderItemWithImage"><img src="${THUMB_PLACEHOLDER}" data-photo-id="${H(i.id)}" alt="商品" loading="lazy">商品 × ${i.qty}</span><span>${yen(i.price*i.qty)}</span></div>`).join('')}</div>${o.deadline?`<p class="hint">匯款截止：${date(o.deadline)}</p>`:''}${o.paymentRef?`<p class="hint">轉帳末五碼：${H(o.paymentRef)}</p>`:''}${o.shippingType==='POST'?`<details><summary>日本郵便收件資料（中英文）</summary><p>${H([o.receiver,o.receiverPhone,o.receiverAddress].join('　'))}</p><p class="hint">英文收件姓名：${H(o.receiverNameEn||'舊單待補')}<br>英文地址：${H(o.receiverAddressEn||'舊單待補')}<br>郵遞區號：${H(o.receiverPostalCode||'未填')} · TAIWAN</p><div class="row"><button data-copy-jp="${H(o.id)}">複製日本郵便收件資訊</button><button data-fix-jp="${H(o.id)}">編輯英文資料</button></div></details>`:''}<div class="row adminActions">${(actionList[o.status]||[]).map(x=>`<button data-order-id="${H(o.id)}" data-act="${H(x[0])}">${H(x[1])}</button>`).join('')}${['BOUGHT','SHIPPING_SELECTED','SHIPPED'].includes(o.status)&&o.shippingType?`<button data-order-id="${H(o.id)}" data-act="freight">設定運費報價</button>`:''}<button data-order-id="${H(o.id)}" data-act="updateCustomer">修正手機／LINE ID</button></div></article>`).join('');
+ const content=os.map(o=>`<article class="listItem adminOrderCard" data-sales-channel="${H(o.salesChannel||'wanye')}"><label class="batchOrderLabel"><input class="pickOrder" type="checkbox" value="${H(o.id)}" data-status="${H(o.status)}"> 勾選這筆訂單</label><div class="row between"><span class="tag">${H(statusName[o.status]||o.status)}</span><small>${date(o.createdAt)}</small></div><div class="row between"><b>${H(o.customerName||'未提供姓名')}</b><b class="price">${money(o.amountTwd)}</b></div><p><span class="tag">${H(o.shopLabel||'頑夜 TOY')} · ×${Number(o.fxRate||0.25).toFixed(2)}</span></p><p><small>手機：${H(o.contact)}　｜　LINE：${H(o.lineId||'舊訂單未填')}</small></p><p><small>配送：${H(shipLabel(o.shippingType,o.salesChannel||'wanye'))}</small></p>${o.freight!==null?`<p class="hint">運費報價：${o.freightJpy!==null?yen(o.freightJpy)+' × '+Number(o.freightFxRate||(o.salesChannel==='partner'?0.27:0.25)).toFixed(2)+' ＝ ':'舊版台幣報價：'}${money(o.freight)}</p>`:''}${o.paymentGroupId?`<p class="shipmentTag">合併匯款 ${paymentGroups.get(String(o.paymentGroupId))?.length||'?'} 筆 · 這一組共 ${money((paymentGroups.get(String(o.paymentGroupId))||[]).reduce((n,x)=>n+Number(x.amountTwd||0),0))} · 只需一筆入帳，同組一起確認收款</p>`:''}${o.shipmentGroupId?`<p class="shipmentTag">合併配送組：${H(o.shipmentGroupId)} ${o.shipmentLeader?'· 主單':''}</p>`:''}<div class="orderProducts">${o.items.map(i=>`<div class="orderLine"><span class="orderItemWithImage"><img src="${THUMB_PLACEHOLDER}" data-photo-id="${H(i.id)}" alt="商品" loading="lazy">商品 × ${i.qty}</span><span>${yen(i.price*i.qty)}</span></div>`).join('')}</div>${o.deadline?`<p class="hint">匯款截止：${date(o.deadline)}</p>`:''}${o.paymentRef?`<p class="hint">轉帳末五碼：${H(o.paymentRef)}</p>`:''}${isDirectShipping(o.shippingType)?`<details><summary>日本郵便收件資料（中英文）</summary><p>${H([o.receiver,o.receiverPhone,o.receiverAddress].join('　'))}</p><p class="hint">英文收件姓名：${H(o.receiverNameEn||'舊單待補')}<br>英文地址：${H(o.receiverAddressEn||'舊單待補')}<br>郵遞區號：${H(o.receiverPostalCode||'未填')} · TAIWAN</p><div class="row"><button data-copy-jp="${H(o.id)}">複製日本郵便收件資訊</button><button data-fix-jp="${H(o.id)}">編輯英文資料</button></div></details>`:''}<div class="row adminActions">${(actionList[o.status]||[]).map(x=>`<button data-order-id="${H(o.id)}" data-act="${H(x[0])}">${H(x[1])}</button>`).join('')}${['BOUGHT','SHIPPING_SELECTED','SHIPPED'].includes(o.status)&&o.shippingType?`<button data-order-id="${H(o.id)}" data-act="freight">設定運費報價</button>`:''}<button data-order-id="${H(o.id)}" data-act="updateCustomer">修正手機／LINE ID</button></div></article>`).join('');
  $('#adminInner').innerHTML=`<section class="panel"><h2>待通知匯款（共 ${queue.count} 筆）</h2><label class="hint">通知來源 <select class="filterSelect" id="pendingChannel" onchange="refreshPendingLabel()"><option value="wanye">頑夜 ×0.25</option><option value="partner">合作廠商 ×0.27</option></select></label><p class="hint">先在訂單按「可以購買」，就會出現在這裡；複製文字後自行貼到 LINE 社群通知。</p><div class="row"><button class="primary" onclick="copyPendingTails()">複製手機末三碼</button><button onclick="copyPendingMessage()">複製 LINE 匯款通知文</button></div><p class="hint" id="pendingChannelSummary"></p><p class="hint">提醒：不同手機可能有相同末三碼，請以個人訂單頁的付款資訊為準。</p></section><section class="panel"><div class="row between"><h2>訂單管理（最近100筆）</h2><button onclick="exportCsv('orders')">匯出全部訂單</button><label class="hint">顯示來源 <select class="filterSelect" id="adminOrderChannel" onchange="filterAdminOrderCards()"><option value="">全部</option><option value="wanye">頑夜 ×0.25</option><option value="partner">合作廠商 ×0.27</option></select></label></div><div class="adminBatchOrderPanel"><p class="hint">勾選下方訂單後批次操作；只能確認符合目前狀態的訂單，狀態不合會提示而不更新。</p><div class="row"><button onclick="selectOrdersByStatus('PAYMENT_REPORTED')">選待核帳</button><button onclick="selectOrdersByStatus('PAID')">選待購買</button><button onclick="selectOrdersByStatus('BOUGHT')">選已購得</button><button onclick="selectOrdersByStatus('')">清除勾選</button></div><div class="row"><button onclick="mergeSelectedOrdersNow()">合併勾選訂單配送</button><button onclick="unmergeSelectedOrdersNow()">取消合併配送</button></div><p class="hint">配送合單限同手機、同配送方式及收件資料、已付款且已購得的訂單；各筆商品款與核帳紀錄保留，運費由最早一筆主單統一報價。合併後整組一起出貨。</p><div class="row"><button class="primary" onclick="bulkOrderActionNow('paid')">批量確認收款</button><button class="primary" onclick="bulkOrderActionNow('bought')">批量確認買到貨</button><button class="primary" onclick="bulkOrderActionNow('shipped')">批量確認出貨</button></div></div>${content||'<p>目前沒有訂單</p>'}</section>`;
  document.querySelectorAll('[data-order-id]').forEach(b=>b.onclick=()=>doOrderAction(b.dataset.orderId,b.dataset.act));
  document.querySelectorAll('[data-copy-jp]').forEach(b=>b.onclick=()=>copyJapanPostLabel(b.dataset.copyJp));
