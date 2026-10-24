@@ -251,19 +251,14 @@ const JP_POST_BOXES=[
  {size:'60尺寸',dims:'18.5 × 26 × 15.5 cm',yen:110},
  {size:'80尺寸',dims:'26.5 × 35 × 18.5 cm',yen:160},
  {size:'100尺寸',dims:'33.5 × 44 × 22.5 cm',yen:250},
- {size:'120尺寸',dims:'35 × 50.5 × 34.5 cm',yen:420},
- {size:'三角箱',dims:'12 × 64.5 × 10.5 cm',yen:150},
- {size:'一升瓶用酒箱（1瓶）',dims:'13.5 × 13.5 × 44.5 cm',yen:270},
- {size:'一升瓶用酒箱（2瓶）',dims:'13.5 × 26.5 × 44.5 cm',yen:410},
- {size:'葡萄酒箱（1瓶）',dims:'11 × 11 × 31.5 cm',yen:210},
- {size:'葡萄酒箱（2瓶）',dims:'11 × 21 × 31.5 cm',yen:320}
+ {size:'120尺寸',dims:'35 × 50.5 × 34.5 cm',yen:420}
 ];
 const JP_POST_BOX_URL='https://www.post.japanpost.jp/service/send/domestic/delivery/yu-pack/package.html';
 function shippingReferenceHtml(){
  const weights=JP_POST_RATES.weightKg;
  const rows=weights.map((w,i)=>`<tr><th scope="row">${w} kg 以下</th>${['EMS','AIR','SEA'].map(k=>`<td data-rate-type="${k}"><b>${yen(JP_POST_RATES[k][i])}</b><small>約 ${money(twd(JP_POST_RATES[k][i]))}</small></td>`).join('')}</tr>`).join('');
  const boxes=JP_POST_BOXES.map(b=>`<tr><th scope="row">${H(b.size)}</th><td>${H(b.dims)}</td><td><b>${yen(b.yen)}</b><small>約 ${money(twd(b.yen))}</small></td></tr>`).join('');
- return `<div class="shippingRateNotice" id="shippingRateReference" hidden><div class="shippingRateHead"><b>日本郵便寄台灣・國際郵資參考表</b><span>第1地帶・依打包後重量</span></div><div class="shippingRateScroll"><table class="shippingRateTable"><thead><tr><th scope="col">重量</th><th scope="col" data-rate-type="EMS">EMS</th><th scope="col" data-rate-type="AIR">日本空運</th><th scope="col" data-rate-type="SEA">日本海運</th></tr></thead><tbody>${rows}</tbody></table></div><p>※ 日本空運／海運的國際小包最低計費級距是 1kg：重量低於 1kg 仍用 1kg 欄位資費；EMS 的 500g 級距則不同。表中為官方基本郵資（日圓）與本商城 ×${SHOP_RATE.toFixed(2)} 的台幣參考值，不是已收運費。</p><div class="shippingRateHead" style="margin-top:18px"><b>日本郵局紙箱尺寸及空箱售價（含特殊箱型）</b><span>包材費・與郵資分開</span></div><div class="shippingRateScroll"><table class="shippingRateTable postBoxTable"><thead><tr><th scope="col">箱型</th><th scope="col">外尺寸（長×寬×高）</th><th scope="col">空箱售價</th></tr></thead><tbody>${boxes}</tbody></table></div><p>箱子可在日本郵局購買，但視各局庫存而定；紙箱的「60／80／100／120尺寸」是國內包材標示，不代表國際運費按這些尺寸收費，也不保證所有箱型適合你的商品或符合國際郵件尺寸限制。實際郵資以打包後秤重及日本郵便受理規則為準；包材、額外服務及進口稅費可能另計。</p><p>部分電池、液體、化妝品等商品可能受到國際郵寄限制；台灣 SAL 目前不受理。本表供估算，實際仍由店主確認重量、箱型、寄件資格與最終報價。</p><p class="shippingRateSource">日本郵便官方：<a href="${JP_POST_EMS_URL}" target="_blank" rel="noopener noreferrer">EMS 費率</a> · <a href="${JP_POST_PARCEL_URL}" target="_blank" rel="noopener noreferrer">空運／海運費率</a> · <a href="${JP_POST_BOX_URL}" target="_blank" rel="noopener noreferrer">紙箱包材售價</a></p></div>`;
+ return `<div class="shippingRateNotice" id="shippingRateReference" hidden><div class="shippingRateHead"><b>日本郵便寄台灣・國際郵資參考表</b><span>第1地帶・依打包後重量</span></div><div class="shippingRateScroll"><table class="shippingRateTable"><thead><tr><th scope="col">重量</th><th scope="col" data-rate-type="EMS">EMS</th><th scope="col" data-rate-type="AIR">日本空運</th><th scope="col" data-rate-type="SEA">日本海運</th></tr></thead><tbody>${rows}</tbody></table></div><p>※ 日本空運／海運的國際小包最低計費級距是 1kg：重量低於 1kg 仍用 1kg 欄位資費；EMS 的 500g 級距則不同。表中為官方基本郵資（日圓）與本商城 ×${SHOP_RATE.toFixed(2)} 的台幣參考值，不是已收運費。</p><div class="shippingRateHead" style="margin-top:18px"><b>日本郵局一般紙箱尺寸及空箱售價</b><span>包材費・與郵資分開</span></div><div class="shippingRateScroll"><table class="shippingRateTable postBoxTable"><thead><tr><th scope="col">箱型</th><th scope="col">外尺寸（長×寬×高）</th><th scope="col">空箱售價</th></tr></thead><tbody>${boxes}</tbody></table></div><p>箱子可在日本郵局購買，但視各局庫存而定；紙箱的「60／80／100／120尺寸」是國內包材標示，不代表國際運費按這些尺寸收費，也不保證所有箱型適合你的商品或符合國際郵件尺寸限制。實際郵資以打包後秤重及日本郵便受理規則為準；包材、額外服務及進口稅費可能另計。</p><p>部分電池、液體、化妝品等商品可能受到國際郵寄限制；台灣 SAL 目前不受理。本表供估算，實際仍由店主確認重量、箱型、寄件資格與最終報價。</p><p class="shippingRateSource">日本郵便官方：<a href="${JP_POST_EMS_URL}" target="_blank" rel="noopener noreferrer">EMS 費率</a> · <a href="${JP_POST_PARCEL_URL}" target="_blank" rel="noopener noreferrer">空運／海運費率</a> · <a href="${JP_POST_BOX_URL}" target="_blank" rel="noopener noreferrer">紙箱包材售價</a></p></div>`;
 }
 
 function notify(msg,bad=false){const el=$('#toast');el.textContent=msg;el.hidden=false;el.style.background=bad?'#f6bbc7':'#eedcff';clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.hidden=true,4500);}
