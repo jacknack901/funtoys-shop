@@ -189,7 +189,7 @@ body{font-size:15px}button,input,select,textarea{font-size:16px}
 @media(max-width:600px){.adminTabs{grid-template-columns:repeat(4,minmax(0,1fr))!important}.adminTabs button{font-size:11px!important;padding:10px 1px!important}.vendorStats{grid-template-columns:1fr 1fr}.vendorStats .vendorStat:last-child{grid-column:span 2}}
 
 
-/* V9.9 各店同一份日本郵便公告；手機橫向表格避免文字擠壓 */
+/* V10.0 各店同一份日本郵便公告；手機橫向表格避免文字擠壓 */
 .shippingRateNotice{margin:12px 0 18px;background:#f8f6fb;border:1px solid #d9d3e2;color:#302d39;border-radius:13px;padding:13px}
 .shippingRateNotice[hidden]{display:none!important}
 .shippingRateHead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px;margin-bottom:10px}
@@ -202,12 +202,16 @@ body{font-size:15px}button,input,select,textarea{font-size:16px}
 .shippingRateTable td[data-active],.shippingRateTable th[data-active]{background:#eae2f3;color:#382258}
 .shippingRateSource a{color:#653b98;text-decoration:underline}
 @media(max-width:600px){.shippingRateNotice{padding:10px}.shippingRateTable{min-width:330px}}
+
+/* V10.0：商品付款模式與郵局紙箱參考 */
+.paymentModeTag{display:block;margin:5px 0 6px;font-size:11px;font-weight:700;line-height:1.35}.payDirect{color:#9a4b06}.payConfirm{color:#695385}
+.postBoxTable{min-width:420px}.postBoxTable th:nth-child(2),.postBoxTable td:nth-child(2){white-space:nowrap;text-align:left}.postBoxTable th:last-child,.postBoxTable td:last-child{text-align:right}
 </style></head>
 <body data-channel="partner" data-shop-name="瘋Toys 動漫公仔周邊"><main class="wrap">
  <header class="brand"><div><h1 id="shopBrand">瘋Toys 動漫公仔周邊</h1><small>JAPAN LIVE · 大阪連線</small></div><span class="headerTag" id="shopBadge">大阪連線</span></header>
  <nav class="nav"><button id="tabShop" onclick="switchTab('shop')" class="active">逛商品</button><button id="tabCart" onclick="switchTab('cart')">購物車 <span id="cartCount">0</span></button><button id="tabOrder" onclick="switchTab('order')">查詢訂單</button></nav>
  <div id="content"></div>
- <footer class="siteFooter"><span>© <span id="footerShop">瘋Toys 動漫公仔周邊</span> · 日圓換算報價 <span id="footerRate">×0.27</span> · 運費另計 · V9.9</span><button class="adminSecret" aria-label="開啟店主後台" title="店主" onclick="openAdmin()">⚙</button></footer>
+ <footer class="siteFooter"><span>© <span id="footerShop">瘋Toys 動漫公仔周邊</span> · 日圓換算報價 <span id="footerRate">×0.27</span> · 運費另計 · V10.0</span><button class="adminSecret" aria-label="開啟店主後台" title="店主" onclick="openAdmin()">⚙</button></footer>
 </main><div id="adminOverlay" hidden class="adminOverlay" onclick="if(event.target===this)closeAdmin()"><aside class="adminDrawer" role="dialog" aria-modal="true" aria-labelledby="adminTitle"><header class="adminTop"><div><small>MANAGEMENT</small><h2 id="adminTitle">店主後台</h2></div><button class="closeAdmin" aria-label="關閉後台" onclick="closeAdmin()">✕</button></header><div id="adminSurface"></div></aside></div><div id="toast" hidden class="flash"></div>
 <script>
 // JPM V9.6.2：此網頁直接指定已確認的 GAS 部署網址，避免舊 config.js 快取導致未連線。
@@ -228,23 +232,38 @@ const CATEGORIES=['未分類','卡牌類','公仔類','家電類','雜物類','�
 function opts(list,selected,allLabel){return (allLabel?`<option value="">${H(allLabel)}</option>`:'')+list.map(v=>`<option value="${H(v)}" ${v===selected?'selected':''}>${H(v)}</option>`).join('');}
 const money=n=>'NT$'+Number(n||0).toLocaleString('zh-TW'), yen=n=>'¥'+Number(n||0).toLocaleString('ja-JP'), twd=n=>Math.round(Number(n||0)*SHOP_RATE), quote=n=>({total:twd(n)}), date=n=>n?new Date(Number(n)).toLocaleString('zh-TW',{hour12:false}):'－';
 const statusName={REQUESTED:'待確認是否買得到',AWAITING_PAYMENT:'請在1小時內轉台幣全額',PAYMENT_REPORTED:'已回報全額匯款／待核帳',PAID:'全額已確認／待採購',BOUGHT:'店家已購得・準備配送',SHIPPING_SELECTED:'已選好配送方式',SHIPPED:'已出貨',COMPLETED:'已完成',UNAVAILABLE:'目前無法購得',CANCELLED:'轉帳逾時取消',REFUND_PENDING:'缺貨待退款'};
+const payModeLabel=mode=>mode==='DIRECT'?'下單立即付款':'先確認有貨再付款';
 const shipName={SHARED:SHOP_CHANNEL==='partner'?'一起集運到瘋Toys':'一起集運到頑夜店內',POST:'日本郵局寄台灣（舊訂單・方式未細分）',EMS:'EMS 國際快捷',AIR:'日本空運（國際小包）',SEA:'日本海運（國際小包）'};
 function shipLabel(type,ch){return type==='SHARED'?(ch==='partner'?'一起集運到瘋Toys':'一起集運到頑夜店內'):(shipName[type]||'待店家確認');}
 
 // 日本郵便第一地帶（中國／韓國／台灣），官方公開重量級距參考；價格非本店運費報價。
 const JP_POST_RATES={
-  weightKg:[0.5,1,2,3,5,10],
-  EMS:[1450,2200,3400,4400,6400,10600],
-  AIR:[2050,2050,2750,3450,4850,8350],
-  SEA:[1800,1800,2200,2600,3400,5400]
+  weightKg:[0.5,1,2,3,5,10,15,20,30],
+  EMS:[1450,2200,3400,4400,6400,10600,14600,18600,26600],
+  AIR:[2050,2050,2750,3450,4850,8350,10850,13350,18350],
+  SEA:[1800,1800,2200,2600,3400,5400,7400,9400,13400]
 };
 const JP_POST_EMS_URL='https://www.post.japanpost.jp/send/oversea/charge/list-ems/zone1.html';
 const JP_POST_PARCEL_URL='https://www.post.japanpost.jp/send/oversea/charge/list-parcel/zone1_en.html';
 function isDirectShipping(type){return ['EMS','AIR','SEA','POST'].includes(String(type||''));}
+// 2026-10-25 日本郵便官方最新價格：郵局箱子是包材費，不是寄台灣的運費。
+const JP_POST_BOXES=[
+ {size:'60尺寸',dims:'18.5 × 26 × 15.5 cm',yen:110},
+ {size:'80尺寸',dims:'26.5 × 35 × 18.5 cm',yen:160},
+ {size:'100尺寸',dims:'33.5 × 44 × 22.5 cm',yen:250},
+ {size:'120尺寸',dims:'35 × 50.5 × 34.5 cm',yen:420},
+ {size:'三角箱',dims:'12 × 64.5 × 10.5 cm',yen:150},
+ {size:'一升瓶用酒箱（1瓶）',dims:'13.5 × 13.5 × 44.5 cm',yen:270},
+ {size:'一升瓶用酒箱（2瓶）',dims:'13.5 × 26.5 × 44.5 cm',yen:410},
+ {size:'葡萄酒箱（1瓶）',dims:'11 × 11 × 31.5 cm',yen:210},
+ {size:'葡萄酒箱（2瓶）',dims:'11 × 21 × 31.5 cm',yen:320}
+];
+const JP_POST_BOX_URL='https://www.post.japanpost.jp/service/send/domestic/delivery/yu-pack/package.html';
 function shippingReferenceHtml(){
  const weights=JP_POST_RATES.weightKg;
  const rows=weights.map((w,i)=>`<tr><th scope="row">${w} kg 以下</th>${['EMS','AIR','SEA'].map(k=>`<td data-rate-type="${k}"><b>${yen(JP_POST_RATES[k][i])}</b><small>約 ${money(twd(JP_POST_RATES[k][i]))}</small></td>`).join('')}</tr>`).join('');
- return `<div class="shippingRateNotice" id="shippingRateReference" hidden><div class="shippingRateHead"><b>日本郵便寄台灣・運費參考表</b><span>依包裹重量估算</span></div><div class="shippingRateScroll"><table class="shippingRateTable"><thead><tr><th scope="col">重量</th><th scope="col" data-rate-type="EMS">EMS</th><th scope="col" data-rate-type="AIR">日本空運</th><th scope="col" data-rate-type="SEA">日本海運</th></tr></thead><tbody>${rows}</tbody></table></div><p>上表為日本郵便寄往台灣的國際郵寄基本資費，每格上方為日幣、下方為本商城 ×${SHOP_RATE.toFixed(2)} 的台幣參考值；僅供比較，不代表已收取或承諾的運費。</p><p>正式運費以實際打包重量、尺寸、郵便受理條件與店家最終報價為準；包材、額外服務、關稅或進口稅費可能另計。部分電池、液體及特殊商品可能無法郵寄。</p><p class="shippingRateSource">日本郵便官方：<a href="${JP_POST_EMS_URL}" target="_blank" rel="noopener noreferrer">EMS 費率</a> · <a href="${JP_POST_PARCEL_URL}" target="_blank" rel="noopener noreferrer">空運／海運費率</a></p></div>`;
+ const boxes=JP_POST_BOXES.map(b=>`<tr><th scope="row">${H(b.size)}</th><td>${H(b.dims)}</td><td><b>${yen(b.yen)}</b><small>約 ${money(twd(b.yen))}</small></td></tr>`).join('');
+ return `<div class="shippingRateNotice" id="shippingRateReference" hidden><div class="shippingRateHead"><b>日本郵便寄台灣・國際郵資參考表</b><span>第1地帶・依打包後重量</span></div><div class="shippingRateScroll"><table class="shippingRateTable"><thead><tr><th scope="col">重量</th><th scope="col" data-rate-type="EMS">EMS</th><th scope="col" data-rate-type="AIR">日本空運</th><th scope="col" data-rate-type="SEA">日本海運</th></tr></thead><tbody>${rows}</tbody></table></div><p>※ 日本空運／海運的國際小包最低計費級距是 1kg：重量低於 1kg 仍用 1kg 欄位資費；EMS 的 500g 級距則不同。表中為官方基本郵資（日圓）與本商城 ×${SHOP_RATE.toFixed(2)} 的台幣參考值，不是已收運費。</p><div class="shippingRateHead" style="margin-top:18px"><b>日本郵局紙箱尺寸及空箱售價（含特殊箱型）</b><span>包材費・與郵資分開</span></div><div class="shippingRateScroll"><table class="shippingRateTable postBoxTable"><thead><tr><th scope="col">箱型</th><th scope="col">外尺寸（長×寬×高）</th><th scope="col">空箱售價</th></tr></thead><tbody>${boxes}</tbody></table></div><p>箱子可在日本郵局購買，但視各局庫存而定；紙箱的「60／80／100／120尺寸」是國內包材標示，不代表國際運費按這些尺寸收費，也不保證所有箱型適合你的商品或符合國際郵件尺寸限制。實際郵資以打包後秤重及日本郵便受理規則為準；包材、額外服務及進口稅費可能另計。</p><p>部分電池、液體、化妝品等商品可能受到國際郵寄限制；台灣 SAL 目前不受理。本表供估算，實際仍由店主確認重量、箱型、寄件資格與最終報價。</p><p class="shippingRateSource">日本郵便官方：<a href="${JP_POST_EMS_URL}" target="_blank" rel="noopener noreferrer">EMS 費率</a> · <a href="${JP_POST_PARCEL_URL}" target="_blank" rel="noopener noreferrer">空運／海運費率</a> · <a href="${JP_POST_BOX_URL}" target="_blank" rel="noopener noreferrer">紙箱包材售價</a></p></div>`;
 }
 
 function notify(msg,bad=false){const el=$('#toast');el.textContent=msg;el.hidden=false;el.style.background=bad?'#f6bbc7':'#eedcff';clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.hidden=true,4500);}
@@ -295,7 +314,8 @@ function addCart(id){
  const found=state.cart.find(x=>x.id===id),current=found?.qty||0;
  if(current>=20)return notify('同一商品每筆最多20件',true);
  if(p.available!==null&&current>=p.available)return notify('已達目前剩餘可代購數量',true);
- if(found)found.qty++;else state.cart.push({id:p.id,price:p.price,qty:1});
+ if(state.cart.some(x=>x.id!==id&&(x.payMode||'CONFIRM')!==(p.payMode||'CONFIRM')))return notify('立即付款商品與待確認商品請分開結帳，先完成目前購物車',true);
+ if(found)found.qty++;else state.cart.push({id:p.id,price:p.price,qty:1,payMode:p.payMode||'CONFIRM'});
  updateCart();notify('已加入購物車');
 }
 function changeQty(id,d){
@@ -307,7 +327,7 @@ function changeQty(id,d){
 }
 function render(){if(state.tab==='shop')return renderShop();if(state.tab==='cart')return renderCart();return renderOrder();}
 function renderShop(){
- $('#content').innerHTML=`<section class="hero"><strong>日本連線・現場代購</strong><p>日幣售價 × ${SHOP_RATE.toFixed(2)} 即為商品台幣售價。確認可買後 60 分鐘內匯款。</p><small>運費另計・下訂後原則上不接受任意取消</small></section>
+ $('#content').innerHTML=`<section class="hero"><strong>日本連線・現場代購</strong><p>日幣售價 × ${SHOP_RATE.toFixed(2)} 即為商品台幣售價。商品有「立即付款」或「確認有貨再付款」兩種模式，皆須在開放付款後60分鐘內匯款。</p><small>運費另計・下訂後原則上不接受任意取消</small></section>
  <section class="filterBar"><select id="shopStore" class="filterSelect" onchange="searchNow()" aria-label="篩選店家">${opts(STORES,state.store,'全部店家')}</select>
  <select id="shopCategory" class="filterSelect" onchange="searchNow()" aria-label="篩選商品類別">${opts(CATEGORIES,state.category,'全部種類')}</select></section>
  <div id="photoErrorNote" class="photoErrorNotice" hidden>部分照片尚未載入，可能是 Drive 縮圖仍在處理或格式不支援。<button onclick="retryVisiblePhotos()">重試圖片</button></div>
@@ -320,15 +340,15 @@ async function loadProducts(reset){
  if(reset)state.offset=0;const box=$('#products'),more=$('#more');if(reset)box.innerHTML='<p class="muted">商品載入中...</p>';
  try{
  const data=await rpc('products',{search:state.search,store:state.store,category:state.category,offset:state.offset});
- const cards=data.items.map(p=>`<article class="product ${p.soldOut?'soldout':''}" aria-label="${p.soldOut?'已完售商品':'可代購商品'}"><div class="photoWrap"><img class="photo" loading="lazy" src="${THUMB_PLACEHOLDER}" data-photo-id="${H(p.id)}" alt="代購商品照片">${p.soldOut?'<span class="soldRibbon">已完售</span>':''}</div><div class="info"><div class="productMeta"><span>${H(p.store)}</span><span>${H(p.category)}</span></div><strong>${yen(p.price)}</strong><div class="twdPrice">台幣 ${money(p.priceTwd)}</div><small class="stockText">${p.soldOut?'已完售':p.available===null?'可代購・數量現場確認':'剩餘 '+p.available+' 件'}</small><button class="primary addButton" data-add="${H(p.id)}" ${p.soldOut?'disabled':''}>${p.soldOut?'已完售':'＋ 加入購物車'}</button></div></article>`).join('');
+ const cards=data.items.map(p=>`<article class="product ${p.soldOut?'soldout':''}" aria-label="${p.soldOut?'已完售商品':'可代購商品'}"><div class="photoWrap"><img class="photo" loading="lazy" src="${THUMB_PLACEHOLDER}" data-photo-id="${H(p.id)}" alt="代購商品照片">${p.soldOut?'<span class="soldRibbon">已完售</span>':''}</div><div class="info"><div class="productMeta"><span>${H(p.store)}</span><span>${H(p.category)}</span></div><strong>${yen(p.price)}</strong><div class="twdPrice">台幣 ${money(p.priceTwd)}</div><small class="stockText">${p.soldOut?'已完售':p.available===null?'可代購・數量現場確認':'剩餘 '+p.available+' 件'}</small><small class="paymentModeTag ${p.payMode==='DIRECT'?'payDirect':'payConfirm'}">${payModeLabel(p.payMode)}</small><button class="primary addButton" data-add="${H(p.id)}" ${p.soldOut?'disabled':''}>${p.soldOut?'已完售':'＋ 加入購物車'}</button></div></article>`).join('');
  if(reset){state.items=data.items;box.innerHTML=cards||'<p>目前沒有符合條件的上架商品</p>';}else{state.items.push(...data.items);box.insertAdjacentHTML('beforeend',cards);}
  state.offset+=data.items.length;more.hidden=state.offset>=data.total;box.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>addCart(b.dataset.add));hydrateThumbs(box,false);
  }catch(e){if(reset)box.innerHTML='<p class="error">讀取失敗，請稍後重試</p>';notify(e.message,true);}
 }
 function renderCart(){
  const totalJpy=state.cart.reduce((a,x)=>a+x.price*x.qty,0),checkoutQuote=quote(totalJpy),amountTwd=checkoutQuote.total;
- $('#content').innerHTML=`<section class="panel checkoutSection"><h2>購物車</h2>${state.cart.length?state.cart.map(i=>`<div class="cartItem"><img src="${THUMB_PLACEHOLDER}" data-photo-id="${H(i.id)}" alt="商品照片"><div class="cartItemBody"><strong>${yen(i.price)}</strong><small>台幣 ${money(quote(i.price).total)}／件</small></div><div class="qtyControl"><button aria-label="減少數量" data-minus="${H(i.id)}">−</button><b>${i.qty}</b><button aria-label="增加數量" data-plus="${H(i.id)}">＋</button></div></div>`).join(''):'購物車目前沒有商品'}<div class="totalRow"><span>商品日圓總額</span><strong>${yen(totalJpy)}</strong></div><div class="totalRow totalPay"><span>應付台幣全額</span><strong>${money(amountTwd)}</strong></div><p class="hint">國際運費依配送方式另行報價，商品款為全額收取，沒有訂金及尾款。</p></section>`+
- (state.cart.length?`<section class="panel checkoutSection"><h2>填寫代購資料</h2><p class="hint">先選擇配送方式，再填寫需要的資料。店主確認買得到後，才會開始 1 小時轉帳倒數。</p>
+ $('#content').innerHTML=`<section class="panel checkoutSection"><h2>購物車</h2>${state.cart.length?state.cart.map(i=>`<div class="cartItem"><img src="${THUMB_PLACEHOLDER}" data-photo-id="${H(i.id)}" alt="商品照片"><div class="cartItemBody"><strong>${yen(i.price)}</strong><small>台幣 ${money(quote(i.price).total)}／件</small></div><div class="qtyControl"><button aria-label="減少數量" data-minus="${H(i.id)}">−</button><b>${i.qty}</b><button aria-label="增加數量" data-plus="${H(i.id)}">＋</button></div></div>`).join(''):'購物車目前沒有商品'}<div class="totalRow"><span>商品日圓總額</span><strong>${yen(totalJpy)}</strong></div><div class="totalRow totalPay"><span>應付台幣全額</span><strong>${money(amountTwd)}</strong></div><p class="hint">國際運費依配送方式另行報價，商品款為全額收取。${state.cart.every(i=>i.payMode==='DIRECT')?'這筆商品下單後立即開放匯款，請於60分鐘內付款。':'這筆商品需要等店主確認有貨後才開始60分鐘匯款期限。'}</p></section>`+
+ (state.cart.length?`<section class="panel checkoutSection"><h2>填寫代購資料</h2><p class="hint">先選擇配送方式，再填寫需要的資料。${state.cart.every(i=>i.payMode==='DIRECT')?'本筆為立即付款商品，下單成功後就會開始1小時匯款倒數。':'本筆商品需店主確認可買，才開始1小時匯款倒數。'}</p>
  <div class="checkoutStepLabel"><span class="checkoutStepNum">1</span><strong>先選配送方式 <b class="required">*</b></strong></div>
  <div class="deliveryOptions"><label class="deliveryChoice"><input type="radio" name="delivery" value="SHARED" onchange="updateCheckoutDelivery()"><span><b>${H(shipName.SHARED)}</b><small>國際運費大家分攤；到台灣後另外報價</small></span></label><label class="deliveryChoice"><input type="radio" name="delivery" value="EMS" onchange="updateCheckoutDelivery()"><span><b>EMS 國際快捷</b><small>日本郵便快捷寄台灣；郵資另計，需完整台灣地址</small></span></label><label class="deliveryChoice"><input type="radio" name="delivery" value="AIR" onchange="updateCheckoutDelivery()"><span><b>日本空運（國際小包）</b><small>日本郵便一般航空小包；郵資另計，需完整台灣地址</small></span></label><label class="deliveryChoice"><input type="radio" name="delivery" value="SEA" onchange="updateCheckoutDelivery()"><span><b>日本海運（國際小包）</b><small>日本郵便船便，通常較省但等待較久；郵資另計，需完整台灣地址</small></span></label></div>${shippingReferenceHtml()}
  <div class="savedProfileBar"><span>常用購買資料</span><div class="row"><button type="button" onclick="restoreSavedProfile(true)">帶入上次資料</button><button type="button" onclick="clearSavedProfile()">清除儲存</button></div><label class="saveProfileConsent"><input type="checkbox" id="saveBuyerProfile"> 將本次購買資料儲存在這台裝置，方便下次使用（共用手機請勿勾選）</label><small>只儲存在此瀏覽器，不會建立帳號；英文郵寄資料每次下單仍須自行確認。</small></div>
@@ -353,7 +373,7 @@ function renderCart(){
  <label class="postalConfirm"><input id="postEnglishConfirm" type="checkbox"><span>我已確認英文姓名、完整英文地址、郵遞區號與中文資料相符，同意以此資料寄送。</span></label>
  </div></div>
  <div class="paymentCombineBox"><label class="saveProfileConsent"><input type="checkbox" id="combinePay" checked><span><b>與之前未付款訂單合併匯款</b><br><small>同一支手機／同一瀏覽器下單，店主確認新訂單可買後，若前單仍在付款期限內且也選擇合併，系統會合併應匯台幣金額並重新給 60 分鐘。若前單已到期或已回報付款，則須分開處理。</small></span></label></div>
- <div class="checkoutWarning"><strong>下訂前請確認</strong><p>你送出的是日本代購需求。店主確認可以購買後，必須在 60 分鐘內匯款畫面顯示的商品台幣全額。運費另計。</p><p>確認下訂後原則上不接受個人因素任意取消；若缺貨或無法購得會依付款情況退款。商品運費另外報價，法定消費者權利不受影響。</p></div><label class="policyConsent"><input type="checkbox" id="agreeTerms" onchange="syncCheckoutConsent()"><span>我已確認商品、數量、配送方式及付款規則，同意上述代購下單注意事項。</span></label><button class="primary checkoutSubmit" id="checkoutBtn" disabled onclick="checkoutNow()">確認送出代購需求</button></section>`:'');
+ <div class="checkoutWarning"><strong>下訂前請確認</strong><p>你送出的是日本代購需求。${state.cart.every(i=>i.payMode==='DIRECT')?'這筆商品送單成功就開始60分鐘匯款倒數，請準備立即付款。':'店主確認可以購買後，必須在60分鐘內匯款畫面顯示的商品台幣全額。'}運費另計。</p><p>確認下訂後原則上不接受個人因素任意取消；若缺貨或無法購得會依付款情況退款。商品運費另外報價，法定消費者權利不受影響。</p></div><label class="policyConsent"><input type="checkbox" id="agreeTerms" onchange="syncCheckoutConsent()"><span>我已確認商品、數量、配送方式及付款規則，同意上述代購下單注意事項。</span></label><button class="primary checkoutSubmit" id="checkoutBtn" disabled onclick="checkoutNow()">${state.cart.every(i=>i.payMode==='DIRECT')?'確認下單並立即開放匯款':'確認送出代購需求'}</button></section>`:'');
  document.querySelectorAll('[data-minus]').forEach(b=>b.onclick=()=>changeQty(b.dataset.minus,-1));document.querySelectorAll('[data-plus]').forEach(b=>b.onclick=()=>changeQty(b.dataset.plus,1));
  restoreSavedProfile(false);
  hydrateThumbs($('#content'),false);
@@ -468,7 +488,7 @@ async function checkoutNow(){
    const x=await rpc('checkout',{name,phone,lineId,shippingType,receiver,receiverPhone,receiverAddress,receiverPostalCode,receiverNameEn,receiverAddressEn,receiverEnglishConfirmed:isDirectShipping(shippingType)&&$('#postEnglishConfirm')?.checked===true,items:state.cart.map(i=>({id:i.id,qty:i.qty})),combinePayment,buyerPayKey,termsAccepted:true,termsVersion:PURCHASE_TERMS_VERSION});
    saveSavedProfile(shippingType);state.cart=[];updateCart();state.lookupPhone=phone;
    try{localStorage.setItem(SHOP_PREFIX+'lookup_phone',phone);}catch(e){}
-   switchTab('order');notify('下單成功！已用你的手機號碼查詢訂單進度');await lookupNow();
+   switchTab('order');notify(x.checkoutPayMode==='DIRECT'?'下單成功！請立即確認銀行帳號並於60分鐘內匯款':'下單成功！已用你的手機號碼查詢訂單進度');await lookupNow();
  }catch(e){notify(e.message,true);}finally{if(btn.isConnected)btn.disabled=false;}
 }
 function copyText(s){
@@ -578,12 +598,12 @@ async function adminProducts(){
  state.adminInfo=info;state.adminProducts=data.items;
  const rows=data.items.map(p=>`<div class="adminProduct" data-pid="${H(p.id)}">
    <img src="${THUMB_PLACEHOLDER}" data-photo-id="${H(p.id)}" loading="lazy" alt="商品照片">
-   <div><label class="row"><input type="checkbox" class="pickProduct" value="${H(p.id)}"><small>商品照片</small><span class="tag">${p.visible?'已上架':'草稿'}</span></label>
+   <div><label class="row"><input type="checkbox" class="pickProduct" value="${H(p.id)}"><small>商品照片</small><span class="tag">${p.visible?'已上架':'草稿'}</span><span class="tag">${payModeLabel(p.payMode)}</span></label>
      <div class="inputs" style="margin-top:7px">
        <label>日圓售價 ¥<input class="pPrice" value="${p.price}" type="number" min="0"></label>
        <label>可代購數量<input class="pQuota" value="${p.quota}" type="number" min="0" title="0代表不限量"></label>
        <label>店家<select class="pStore">${opts(STORES,p.store)}</select></label>
-       <label>商品類別<select class="pCategory">${opts(CATEGORIES,p.category)}</select></label>
+       <label>商品類別<select class="pCategory">${opts(CATEGORIES,p.category)}</select></label><label style="grid-column:1/-1">付款方式<select class="pPayMode"><option value="CONFIRM" ${p.payMode!=='DIRECT'?'selected':''}>先確認有貨，再開放付款（預設）</option><option value="DIRECT" ${p.payMode==='DIRECT'?'selected':''}>下單後立即匯款（60分鐘）</option></select></label>
      </div><small class="muted">已預留 ${p.reserved} 件｜${p.available===null?'不限量':'剩餘 '+p.available+' 件'}｜台幣 ${money(p.priceTwd)}</small>
      <div class="row adminRowActions"><label><input class="pVisible" type="checkbox" ${p.visible?'checked':''}> 上架</label><button data-save="${H(p.id)}">儲存</button><button class="danger" data-delete="${H(p.id)}">刪除</button></div>
    </div></div>`).join('');
@@ -670,7 +690,7 @@ async function rescanPhotosNow(){
  catch(e){notify(e.message,true);}
 }
 async function saveProduct(id){const row=[...document.querySelectorAll('[data-pid]')].find(e=>e.dataset.pid===id);if(!row)return;
- const arg={token:state.token,id,price:row.querySelector('.pPrice').value,store:row.querySelector('.pStore').value,category:row.querySelector('.pCategory').value,quota:row.querySelector('.pQuota').value,visible:row.querySelector('.pVisible').checked};
+ const arg={token:state.token,id,price:row.querySelector('.pPrice').value,store:row.querySelector('.pStore').value,category:row.querySelector('.pCategory').value,quota:row.querySelector('.pQuota').value,payMode:row.querySelector('.pPayMode').value,visible:row.querySelector('.pVisible').checked};
  try{await rpc('setProduct',arg);notify('已儲存 '+id);await adminProducts();}catch(e){notify(e.message,true);}}
 async function deleteProductNow(id){
  if(!confirm('確定刪除這項商品？\n商品會從前台與後台清單隱藏，但不會刪除 Google Drive 原圖和既有訂單。'))return;
@@ -680,7 +700,7 @@ async function deleteProductNow(id){
 async function bulkPublishNow(){
  const rows=[...document.querySelectorAll('.adminProduct')].filter(el=>el.querySelector('.pickProduct')?.checked);
  if(!rows.length)return notify('請先勾選要上架的商品',true);
- const products=rows.map(el=>({id:el.dataset.pid,price:el.querySelector('.pPrice').value,quota:el.querySelector('.pQuota').value,store:el.querySelector('.pStore').value,category:el.querySelector('.pCategory').value}));
+ const products=rows.map(el=>({id:el.dataset.pid,price:el.querySelector('.pPrice').value,quota:el.querySelector('.pQuota').value,store:el.querySelector('.pStore').value,category:el.querySelector('.pCategory').value,payMode:el.querySelector('.pPayMode').value}));
  if(products.some(x=>!Number.isInteger(Number(x.price))||Number(x.price)<=0))return notify('選取商品有尚未設定日圓價格的項目',true);
  if(!confirm(`確定一次上架 ${products.length} 項商品？會一起儲存每件商品畫面上的日圓價格、數量與分類。`))return;
  try{const r=await rpc('bulkPublish',{token:state.token,products});notify(`已批次上架 ${r.count} 項商品`);await adminProducts();}
@@ -784,7 +804,7 @@ async function doOrderAction(id,act){const msg={available:'確認現場可買到
  if(act==='shipped'){tracking=prompt('寄件單號或取件說明（可留空）');if(tracking===null)return;}
  try{await rpc('orderAction',{token:state.token,id,act,freightJpy,tracking,phone,lineId});notify('訂單資料已更新');adminOrders();}catch(e){notify(e.message,true);}}
 async function adminSettings(){const o=await rpc('adminInfo',{token:state.token});
- $('#adminInner').innerHTML=`<section class="panel" style="max-width:600px"><h2>雙商城收款銀行設定</h2><p class="hint">商品、庫存、Google Drive 共用，兩個入口從同一份資料產生。此頁是瘋Toys 專屬購物入口，商品與庫存由共用後端管理。</p><p class="notice">客人只有在你按下「可以購買」後才會看到收款資訊。</p><h3>頑夜入口（×0.25）</h3><div class="field"><label>銀行名稱</label><input id="bankName" value="${H(o.bankName)}" placeholder="例如 XX銀行"></div><div class="field"><label>戶名</label><input id="bankHolder" value="${H(o.bankHolder)}"></div><div class="field"><label>銀行帳號</label><input id="bankAccount" value="${H(o.bankAccount)}"></div><button class="primary" onclick="saveBank('wanye')">儲存頑夜銀行</button><hr><h3>合作廠商入口（×0.27）</h3><div class="field"><label>合作廠商商城名稱</label><input id="partnerShopTitle" value="${H(o.partnerShopTitle||'合作廠商')}" maxlength="50"></div><button onclick="savePartnerShopTitle()">儲存合作廠商名稱</button><div class="field"><label>銀行名稱</label><input id="partnerBankName" value="${H(o.partnerBankName)}" placeholder="合作廠商銀行"></div><div class="field"><label>戶名</label><input id="partnerBankHolder" value="${H(o.partnerBankHolder)}"></div><div class="field"><label>銀行帳號</label><input id="partnerBankAccount" value="${H(o.partnerBankAccount)}"></div><button class="primary" onclick="saveBank('partner')">儲存合作廠商銀行</button><p class="hint">銀行資訊按訂單所屬商城獨立帶出；不要把店主後台密碼提供給合作廠商。</p><p class="muted">本版為人工核帳，系統不會自動查到銀行實際入帳。</p></section>`;}
+ $('#adminInner').innerHTML=`<section class="panel" style="max-width:600px"><h2>雙商城收款銀行設定</h2><p class="hint">商品、庫存、Google Drive 共用，兩個入口從同一份資料產生。此頁是瘋Toys 專屬購物入口，商品與庫存由共用後端管理。</p><p class="notice">待確認商品須由你按「可以購買」才顯示收款資訊；立即付款商品下單成功就會顯示銀行資料。</p><h3>頑夜入口（×0.25）</h3><div class="field"><label>銀行名稱</label><input id="bankName" value="${H(o.bankName)}" placeholder="例如 XX銀行"></div><div class="field"><label>戶名</label><input id="bankHolder" value="${H(o.bankHolder)}"></div><div class="field"><label>銀行帳號</label><input id="bankAccount" value="${H(o.bankAccount)}"></div><button class="primary" onclick="saveBank('wanye')">儲存頑夜銀行</button><hr><h3>合作廠商入口（×0.27）</h3><div class="field"><label>合作廠商商城名稱</label><input id="partnerShopTitle" value="${H(o.partnerShopTitle||'合作廠商')}" maxlength="50"></div><button onclick="savePartnerShopTitle()">儲存合作廠商名稱</button><div class="field"><label>銀行名稱</label><input id="partnerBankName" value="${H(o.partnerBankName)}" placeholder="合作廠商銀行"></div><div class="field"><label>戶名</label><input id="partnerBankHolder" value="${H(o.partnerBankHolder)}"></div><div class="field"><label>銀行帳號</label><input id="partnerBankAccount" value="${H(o.partnerBankAccount)}"></div><button class="primary" onclick="saveBank('partner')">儲存合作廠商銀行</button><p class="hint">銀行資訊按訂單所屬商城獨立帶出；不要把店主後台密碼提供給合作廠商。</p><p class="muted">本版為人工核帳，系統不會自動查到銀行實際入帳。</p></section>`;}
 async function savePartnerShopTitle(){try{const r=await rpc('setPartnerTitle',{token:state.token,name:$('#partnerShopTitle').value});notify('已儲存：'+r.name+'（需重新整理前台才會顯示）');}catch(e){notify(e.message,true);}}
 async function saveBank(ch='wanye'){try{const p=ch==='partner'?'partnerBank':'bank';await rpc('setBank',{token:state.token,bankChannel:ch,name:$('#'+p+'Name').value,holder:$('#'+p+'Holder').value,account:$('#'+p+'Account').value});notify((ch==='partner'?'合作廠商':'頑夜')+'收款資料已儲存');}catch(e){notify(e.message,true);}}
 
