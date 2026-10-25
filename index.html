@@ -270,12 +270,31 @@ body{font-size:15px}button,input,select,textarea{font-size:16px}
 @media(max-width:680px){.vendorStats{grid-template-columns:repeat(2,minmax(0,1fr))!important}.vendorStat strong{font-size:18px}.vendorFilters{grid-template-columns:1fr 1fr}.vendorFilters>div:last-child{grid-column:1/-1}.vendorOrderRow{grid-template-columns:28px minmax(0,1fr) auto;gap:6px 9px;padding:12px}.vendorMoneyColumns{grid-column:2/-1;grid-row:2}.vendorCommission{grid-column:3;grid-row:1}.vendorCommission strong{font-size:16px}.vendorActionGrid{grid-template-columns:1fr}.vendorActionGrid button{width:100%}.vendorPeriodShortcuts button{flex:1 1 auto}.vendorTabs button{flex:1 1 auto}.vendorOrderInfo small{font-size:10px}}
 @media(max-width:360px){.vendorStats{gap:6px}.vendorStat{padding:10px 8px}.vendorStat strong{font-size:16px}.vendorOrderRow{gap:8px}.vendorMoneyColumns b{font-size:12px}}
 
+
+/* V10.0.3 LINE 內建瀏覽器安全結帳：使用網頁對話框，不使用 window.confirm()。 */
+.checkoutDialogOverlay{position:fixed;inset:0;z-index:1200;background:rgba(20,13,32,.67);display:flex;align-items:center;justify-content:center;padding:16px;overscroll-behavior:contain}
+.checkoutDialogCard{width:min(100%,490px);max-height:min(88dvh,720px);overflow-y:auto;border-radius:20px;padding:24px;background:#fff;color:#241a31;box-shadow:0 22px 65px #0005;border:1px solid #e9e1f1}
+.checkoutDialogCard h2{margin:0 0 10px;font-size:22px;color:#2a173e;line-height:1.3}
+.checkoutDialogCard p{font-size:14px;color:#5a4f65;line-height:1.7}
+.checkoutDialogDetails{background:#f6f0fb;border:1px solid #e4d5f4;border-radius:13px;padding:13px 15px;margin:15px 0;font-size:14px}
+.checkoutDialogLine{display:flex;justify-content:space-between;gap:12px;padding:5px 0}
+.checkoutDialogLine strong{color:#452073;text-align:right;overflow-wrap:anywhere}
+.checkoutDialogAddress{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;color:#584968;margin-top:8px;line-height:1.6}
+.checkoutDialogAlert{border-radius:11px;background:#fff5e4;color:#6b4417;padding:11px 12px;margin:13px 0;font-size:13px;line-height:1.6}
+.checkoutDialogActions{display:grid;grid-template-columns:1fr 1.2fr;gap:10px;margin-top:18px}
+.checkoutDialogActions button{min-height:49px;font-size:15px;font-weight:700}
+.checkoutDialogActions button.primary{background:#6b43a6!important;color:white!important}
+.checkoutProgressStatus{display:flex;gap:12px;align-items:center;padding:15px 0;font-size:15px;line-height:1.5}
+.checkoutSpinner{flex:none;width:27px;height:27px;border:3px solid #e4d6f0;border-top-color:#764bb0;border-radius:50%;animation:checkoutSpin .75s linear infinite}
+@keyframes checkoutSpin{to{transform:rotate(360deg)}}
+.checkoutDialogCard button:focus-visible{outline:3px solid #ab81db;outline-offset:2px}
+@media(max-width:550px){.checkoutDialogOverlay{padding:12px;align-items:center}.checkoutDialogCard{padding:19px 16px;border-radius:17px;max-height:86dvh}.checkoutDialogCard h2{font-size:20px}.checkoutDialogActions{grid-template-columns:1fr 1fr}.checkoutDialogActions button{font-size:14px}}
 </style></head>
 <body data-channel="partner" data-shop-name="瘋Toys 動漫公仔周邊"><main class="wrap">
  <header class="brand"><div><h1 id="shopBrand">瘋Toys 動漫公仔周邊</h1><small>JAPAN LIVE · 大阪連線</small></div><span class="headerTag" id="shopBadge">大阪連線</span></header>
  <nav class="nav"><button id="tabShop" onclick="switchTab('shop')" class="active">逛商品</button><button id="tabCart" onclick="switchTab('cart')">購物車 <span id="cartCount">0</span></button><button id="tabOrder" onclick="switchTab('order')">查詢訂單</button></nav>
  <div id="content"></div>
- <footer class="siteFooter"><span>© <span id="footerShop">瘋Toys 動漫公仔周邊</span> · 日圓換算報價 <span id="footerRate">×0.27</span> · 運費另計 · V10.0</span><button class="adminSecret" aria-label="開啟店主後台" title="店主" onclick="openAdmin()">⚙</button></footer>
+ <footer class="siteFooter"><span>© <span id="footerShop">瘋Toys 動漫公仔周邊</span> · 日圓換算報價 <span id="footerRate">×0.27</span> · 運費另計 · V10.0.3</span><button class="adminSecret" aria-label="開啟店主後台" title="店主" onclick="openAdmin()">⚙</button></footer>
 </main><div id="adminOverlay" hidden class="adminOverlay" onclick="if(event.target===this)closeAdmin()"><aside class="adminDrawer" role="dialog" aria-modal="true" aria-labelledby="adminTitle"><header class="adminTop"><div><small>MANAGEMENT</small><h2 id="adminTitle">店主後台</h2></div><button class="closeAdmin" aria-label="關閉後台" onclick="closeAdmin()">✕</button></header><div id="adminSurface"></div></aside></div><div id="toast" hidden class="flash"></div>
 <script>
 // JPM V9.6.2：此網頁直接指定已確認的 GAS 部署網址，避免舊 config.js 快取導致未連線。
@@ -454,8 +473,8 @@ function restoreSavedProfile(manual){
  resetPostalConfirm();
  if(manual)notify(v.shippingType==='POST'?'已帶入舊版郵寄資料，請重新選擇 EMS、空運或海運':'已帶入上次儲存的購買資料');
 }
-function clearSavedProfile(){
- if(!confirm('只刪除這台裝置儲存的購買資料，不影響已下的訂單。確定清除？'))return;
+async function clearSavedProfile(){
+ if(!await webConfirm({title:'清除常用購買資料',details:'<p>只會移除這台裝置儲存的購買資料，不會取消已成立的訂單。</p>',okText:'確認清除'}))return;
  try{localStorage.removeItem(PROFILE_KEY);}catch(e){}
  const b=$('#saveBuyerProfile');if(b)b.checked=false;
  notify('已清除此裝置的購買資料');
@@ -517,7 +536,53 @@ function postalLabelText(o){
   return [o.receiverNameEn||'[請補英文姓名]',o.receiverAddressEn||'[請補完整英文地址]',o.receiverPostalCode||'[POSTAL CODE]','TAIWAN',international?'TEL: '+international.trim():''].filter(Boolean).join('\n');
 }
 function copyJapanPostLabel(id){const o=(state.adminOrders||[]).find(o=>String(o.id)===String(id));if(!o)return notify('訂單已重新整理，請重開後台',true);copyText(postalLabelText(o));}
-function syncCheckoutConsent(){const el=$('#checkoutBtn');if(el)el.disabled=!$('#agreeTerms')?.checked;}
+function syncCheckoutConsent(){const el=$('#checkoutBtn');if(el)el.disabled=!$('#agreeTerms')?.checked||checkoutFlowActive||checkoutResultUncertain;}
+
+// 訂單確認改用網頁內對話框，避開 LINE / WebView 對原生 confirm() 的相容性問題。
+let checkoutFlowActive=false;
+let checkoutResultUncertain=false;
+function webConfirm({title,details='',notice='',okText='確認',cancelText='返回修改'}){
+ return new Promise(resolve=>{
+  const previous=document.activeElement;
+  const overlay=document.createElement('div');overlay.className='checkoutDialogOverlay';overlay.id='webCheckoutDialog';
+  overlay.innerHTML=`<section class="checkoutDialogCard" role="dialog" aria-modal="true" aria-labelledby="checkoutDialogTitle"><h2 id="checkoutDialogTitle">${H(title)}</h2>${details?`<div class="checkoutDialogDetails">${details}</div>`:''}${notice?`<div class="checkoutDialogAlert">${H(notice)}</div>`:''}<div class="checkoutDialogActions"><button type="button" id="checkoutDialogCancel">${H(cancelText)}</button><button class="primary" type="button" id="checkoutDialogOK">${H(okText)}</button></div></section>`;
+  const yes=overlay.querySelector('#checkoutDialogOK'),no=overlay.querySelector('#checkoutDialogCancel');
+  const done=answer=>{document.removeEventListener('keydown',onKey,true);overlay.remove();try{previous?.focus({preventScroll:true});}catch(e){}resolve(answer);};
+  const onKey=e=>{
+   if(e.key==='Escape'){e.preventDefault();done(false);return;}
+   if(e.key==='Tab'){
+    const first=no,last=yes;
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+   }
+  };
+  document.body.appendChild(overlay);no.onclick=()=>done(false);yes.onclick=()=>done(true);
+  document.addEventListener('keydown',onKey,true);
+  no.focus({preventScroll:true});
+ });
+}
+function showCheckoutProgress(phone){
+ const overlay=document.createElement('div');overlay.className='checkoutDialogOverlay';overlay.id='checkoutProgressDialog';
+ overlay.innerHTML=`<section class="checkoutDialogCard" role="dialog" aria-modal="true" aria-labelledby="checkoutProgressTitle" aria-live="polite"><h2 id="checkoutProgressTitle">正在建立訂單</h2><div class="checkoutProgressStatus"><span class="checkoutSpinner" aria-hidden="true"></span><strong>資料正在傳送，請勿重複點擊或重新下單</strong></div><p id="checkoutSlowHint">請保持頁面開啟，送出後會自動顯示查單畫面。</p><div id="checkoutSlowActions" class="checkoutDialogActions" hidden><button type="button" id="checkoutSlowLookup" class="primary" style="grid-column:1/-1">先查詢有沒有建立訂單</button></div></section>`;
+ document.body.appendChild(overlay);
+ // 遇到 LINE 網頁視窗封鎖或網路延遲時，提供不會重送 checkout 的查單入口。
+ const timer=setTimeout(()=>{
+  if(!overlay.isConnected)return;
+  const hint=overlay.querySelector('#checkoutSlowHint');
+  if(hint)hint.textContent='連線時間較久，訂單可能仍在處理。請勿再次送單；可先查詢是否已建立訂單。若無法查詢，可改用 Safari／Chrome 開啟同一個商城網址。';
+  overlay.querySelector('#checkoutSlowActions').hidden=false;
+ },20000);
+ overlay.querySelector('#checkoutSlowLookup').onclick=()=>{
+  overlay.remove();state.lookupPhone=phone;switchTab('order');lookupNow();
+ };
+ return ()=>{clearTimeout(timer);overlay.remove();};
+}
+async function showUncertainCheckout(phone){
+ const ok=await webConfirm({title:'請先確認訂單是否成立',details:'<p>這次連線沒有取得明確結果，訂單有可能已成功送出。</p><p><strong>請勿立刻重新下單</strong>，先使用手機號碼查看訂單，避免重複付款或占用庫存。</p>',okText:'查詢我的訂單',cancelText:'留在目前頁面'});
+ if(ok){state.lookupPhone=phone;switchTab('order');lookupNow();}
+}
+function checkoutTransportUncertain(error){return /連線逾時|資料連線|網路|網絡|network|timeout|timed out|failed to fetch|連接失敗|postMessage|iframe|bridge/i.test(String(error?.message||error||''));}
+
 function normalizePhoneUi(phone){
  let s=String(phone||'').normalize('NFKC').replace(/[^0-9]/g,'');
  if(/^008869\d{8}$/.test(s))s='0'+s.slice(5);
@@ -527,29 +592,54 @@ function normalizePhoneUi(phone){
  return s;
 }
 async function checkoutNow(){
+ if(checkoutFlowActive||checkoutResultUncertain)return;
  if(!$('#agreeTerms')?.checked)return notify('請先勾選同意代購條款',true);
  const name=$('#buyerName').value.trim(),phone=normalizePhoneUi($('#buyerPhone').value),lineId=$('#buyerLineId').value.trim(),shippingType=document.querySelector('input[name="delivery"]:checked')?.value||'';
  if(!name||!/^09\d{8}$/.test(phone)||lineId.length<3)return notify('姓名、手機與 LINE ID 都必填，請確認手機格式',true);
  if(!shippingType)return notify('請先選好配送方式',true);
- const combinePayment=$('#combinePay')?.checked===true,buyerPayKey=combinePayment?getBuyerPayKey():'';
- if(combinePayment&&!buyerPayKey)return notify('目前瀏覽器無法儲存合併匯款資料，請取消勾選或改用一般瀏覽器',true);
+ let combinePayment=$('#combinePay')?.checked===true;
+ let buyerPayKey=combinePayment?getBuyerPayKey():'';
+ if(combinePayment&&!buyerPayKey){
+  combinePayment=false;const check=$('#combinePay');if(check)check.checked=false;
+  notify('此瀏覽器不支援儲存合併匯款資料，已改成單筆付款，不影響下單');
+ }
  const receiver=isDirectShipping(shippingType)?name:'',receiverPhone=isDirectShipping(shippingType)?phone:'',receiverAddress=$('#postReceiverAddress')?.value.trim()||'';
  const receiverPostalCode=($('#postReceiverPostalCode')?.value||'').replace(/\D/g,''),receiverNameEn=$('#postReceiverNameEn')?.value.trim()||'',receiverAddressEn=$('#postReceiverAddressEn')?.value.trim()||'';
  if(isDirectShipping(shippingType)){
-   if(!receiver||!/^09\d{8}$/.test(receiverPhone)||receiverAddress.length<8||!/^\d{3}(?:\d{2,3})?$/.test(receiverPostalCode))return notify('郵局寄送須填收件姓名、手機、完整地址和郵遞區號',true);
-   if(!/^[A-Za-z][A-Za-z .'\-]{1,99}$/.test(receiverNameEn)||!/[A-Za-z]/.test(receiverAddressEn)||/[\u3400-\u9fff]/.test(receiverAddressEn)||receiverAddressEn.length<12)return notify('請確認日本郵便用的英文收件姓名和地址',true);
-   if(!$('#postEnglishConfirm')?.checked)return notify('請先核對英文地址及英文姓名並勾選確認',true);
+  if(!receiver||!/^09\d{8}$/.test(receiverPhone)||receiverAddress.length<8||!/^\d{3}(?:\d{2,3})?$/.test(receiverPostalCode))return notify('郵局寄送須填收件姓名、手機、完整地址和郵遞區號',true);
+  if(!/^[A-Za-z][A-Za-z .'\-]{1,99}$/.test(receiverNameEn)||!/[A-Za-z]/.test(receiverAddressEn)||/[\u3400-\u9fff]/.test(receiverAddressEn)||receiverAddressEn.length<12)return notify('請確認日本郵便用的英文收件姓名和地址',true);
+  if(!$('#postEnglishConfirm')?.checked)return notify('請先核對英文地址及英文姓名並勾選確認',true);
  }
  const totalJpy=state.cart.reduce((s,i)=>s+i.price*i.qty,0);
- if(!confirm('最後確認下訂\n商品台幣全額：'+money(quote(totalJpy).total)+'\n配送：'+shipName[shippingType]+(isDirectShipping(shippingType)?'\n英文收件人：'+receiverNameEn+'\n英文地址：'+receiverAddressEn+'\n郵遞區號：'+receiverPostalCode+' TAIWAN':'')+'\n國際運費另計\n\n確認後原則上不得任意取消。確定送出？'))return;
- const btn=$('#checkoutBtn');btn.disabled=true;
+ if(!totalJpy||!state.cart.length)return notify('購物車沒有商品，請重新選擇',true);
+ const payImmediately=state.cart.every(i=>i.payMode==='DIRECT');
+ const details=`<div class="checkoutDialogLine"><span>商品日幣總額</span><strong>${yen(totalJpy)}</strong></div><div class="checkoutDialogLine"><span>商品台幣全額</span><strong>${money(quote(totalJpy).total)}</strong></div><div class="checkoutDialogLine"><span>配送方式</span><strong>${H(shipName[shippingType]||shippingType)}</strong></div><div class="checkoutDialogLine"><span>付款方式</span><strong>${payImmediately?'下單立即付款（60 分鐘內）':'店主確認有貨後付款'}</strong></div><div class="checkoutDialogLine"><span>合併匯款</span><strong>${combinePayment?'符合條件時自動合併':'本次單筆匯款'}</strong></div>${isDirectShipping(shippingType)?`<div class="checkoutDialogAddress"><b>英文收件人：</b>${H(receiverNameEn)}<br><b>英文地址：</b>${H(receiverAddressEn)}<br><b>郵遞區號：</b>${H(receiverPostalCode)} TAIWAN</div>`:''}`;
+ checkoutFlowActive=true;syncCheckoutConsent();
+ let closeProgress=null;
  try{
+  const accepted=await webConfirm({title:'最後確認下單',details,notice:'國際運費另計。訂單確認後原則上不得任意取消；如需退款依商城規則處理。',okText:payImmediately?'確認並開始 60 分鐘付款':'確認送出訂單'});
+  if(!accepted)return;
+  closeProgress=showCheckoutProgress(phone);
+  try{
    const x=await rpc('checkout',{name,phone,lineId,shippingType,receiver,receiverPhone,receiverAddress,receiverPostalCode,receiverNameEn,receiverAddressEn,receiverEnglishConfirmed:isDirectShipping(shippingType)&&$('#postEnglishConfirm')?.checked===true,items:state.cart.map(i=>({id:i.id,qty:i.qty})),combinePayment,buyerPayKey,termsAccepted:true,termsVersion:PURCHASE_TERMS_VERSION});
+   closeProgress();closeProgress=null;
    saveSavedProfile(shippingType);state.cart=[];updateCart();state.lookupPhone=phone;
    try{localStorage.setItem(SHOP_PREFIX+'lookup_phone',phone);}catch(e){}
-   switchTab('order');notify(x.checkoutPayMode==='DIRECT'?'下單成功！請立即確認銀行帳號並於60分鐘內匯款':'下單成功！已用你的手機號碼查詢訂單進度');await lookupNow();
- }catch(e){notify(e.message,true);}finally{if(btn.isConnected)btn.disabled=false;}
+   switchTab('order');notify(x.checkoutPayMode==='DIRECT'?'下單成功！請立即確認銀行帳號並於60分鐘內匯款':'下單成功！已用你的手機號碼查詢訂單進度');
+   await lookupNow();
+  }catch(e){
+   if(closeProgress){closeProgress();closeProgress=null;}
+   if(checkoutTransportUncertain(e)){
+    checkoutResultUncertain=true;
+    await showUncertainCheckout(phone);
+   }else notify(e.message,true);
+  }
+ }finally{
+  if(closeProgress)closeProgress();
+  checkoutFlowActive=false;syncCheckoutConsent();
+ }
 }
+
 function copyText(s){
  if(navigator.clipboard?.writeText){navigator.clipboard.writeText(s).then(()=>notify('已複製，可貼到 LINE'),()=>fallbackCopy(s));}
  else fallbackCopy(s);
@@ -606,7 +696,7 @@ async function paymentNow(id,box){
 async function combinedPaymentNow(groupId,box){
  const ref=box?.querySelector('.paymentRef')?.value||'';
  if(!/^\d{5}$/.test(ref))return notify('請填寫匯款帳號末五碼',true);
- if(!confirm('確定已經匯出此組全部訂單的合併台幣總金額？一筆匯款只回報一次。'))return;
+ if(!await webConfirm({title:'確認回報合併匯款',details:'<p>請確認你已經匯出此組全部訂單的台幣總金額，且只需要回報一次。</p>',okText:'確定已匯款'}))return;
  try{const res=await rpc('reportCombinedPayment',{groupId,phone:state.lookupPhone,buyerPayKey:getBuyerPayKey(),ref});notify('已一次回報 '+res.count+' 筆訂單的合併匯款，等待店主核帳');await lookupNow();}
  catch(e){notify(e.message,true);}
 }
