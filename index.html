@@ -206,6 +206,70 @@ body{font-size:15px}button,input,select,textarea{font-size:16px}
 /* V10.0：商品付款模式與郵局紙箱參考 */
 .paymentModeTag{display:block;margin:5px 0 6px;font-size:11px;font-weight:700;line-height:1.35}.payDirect{color:#9a4b06}.payConfirm{color:#695385}
 .postBoxTable{min-width:420px}.postBoxTable th:nth-child(2),.postBoxTable td:nth-child(2){white-space:nowrap;text-align:left}.postBoxTable th:last-child,.postBoxTable td:last-child{text-align:right}
+/* V10.0.2 廠商結單 UX：只影響後台 */
+.vendorPanel{--vsub:#bbaeca;--vline:#53445e;--vsoft:#2b2233}
+.vendorPanel h2{font-size:20px!important;margin:5px 0 6px!important}
+.vendorIntro{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.vendorKicker{font-size:10px;letter-spacing:1.4px;color:#bda3e5;font-weight:800}
+.vendorIntro p{font-size:12px;color:#cbbdd8;line-height:1.65;margin:5px 0 2px;max-width:555px}
+.vendorExport{min-height:38px;white-space:normal}
+.vendorStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:15px 0!important}
+.vendorStat{padding:13px;background:var(--vsoft);border:1px solid var(--vline);border-radius:12px;min-width:0}
+.vendorStat small{display:block;font-size:11px;color:#d2c4de;line-height:1.4}
+.vendorStat strong{display:block;font-size:20px;color:#f8efff;overflow-wrap:anywhere;margin-top:6px;font-variant-numeric:tabular-nums;line-height:1.2}
+.vendorStat.primaryStat{background:#3f2a57;border-color:#8062a0}
+.vendorStat.primaryStat strong{color:#e9d5ff}
+.vendorStat.warningStat{background:#413020;border-color:#775336}
+.vendorStat.warningStat strong{color:#ffd48d}
+.vendorPeriodShortcuts{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 10px}
+.adminDrawer .vendorPeriodShortcuts button{min-height:36px!important;padding:7px 12px!important;font-size:12px!important;border-radius:20px}
+.vendorPeriodShortcuts button.on,.vendorTabs button.on{background:#b699e1!important;color:#24172f!important;border-color:#b699e1!important;font-weight:800}
+.vendorFilters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0 6px!important}
+.vendorFilters label{display:block;font-size:11px;color:#cfbfdf;margin-bottom:5px}
+.vendorFilters input{width:100%;min-width:0;min-height:42px;background:#2a2232!important;border:1px solid #685373!important;color:#fff!important;border-radius:9px;padding:9px}
+.vendorToolbarHelp{font-size:11px;color:#a99bb8;margin:0 0 14px}
+.vendorTabs{display:flex;gap:7px;flex-wrap:wrap;border-top:1px solid var(--vline);padding-top:13px;margin:12px 0 14px}
+.adminDrawer .vendorTabs button{min-height:37px!important;padding:8px 10px!important;font-size:12px!important;border-radius:10px}
+.vendorTabCount{display:inline-block;margin-left:4px;opacity:.78;font-variant-numeric:tabular-nums}
+.vendorListTop{display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap;margin:6px 0 12px}
+.vendorListTop strong{font-size:15px}
+.vendorListActions{display:flex;gap:6px;flex-wrap:wrap}
+.vendorListActions button{min-height:34px}
+.vendorRows{display:grid;gap:9px;border:0!important;margin:0!important}
+.vendorOrderRow{display:grid;grid-template-columns:27px minmax(140px,1fr) minmax(180px,1.35fr) minmax(98px,auto);gap:10px;align-items:center;padding:13px 11px;border:1px solid #574863;border-radius:12px;background:#292132;min-width:0}
+.vendorOrderRow.selected{background:#39274b;border-color:#b294dc;box-shadow:inset 3px 0 0 #b699e1}
+.vendorOrderRow.alertRow{border-color:#987249;background:#322820}
+.vendorOrderRow .vendorOrderTick{display:flex;align-items:center;justify-content:center}
+.vendorOrderRow input.vendorPick{width:20px;height:20px;accent-color:#c3a3e8}
+.vendorOrderInfo{min-width:0}.vendorOrderInfo strong{display:block;color:#fff;font-size:13px;overflow-wrap:anywhere}
+.vendorOrderInfo small{display:block;color:#bdafcc;font-size:11px;line-height:1.6;margin-top:3px;overflow-wrap:anywhere}
+.vendorStatus{display:inline-flex;align-items:center;border-radius:30px;background:#57406c;color:#f0e6fa;padding:3px 8px;font-size:11px;line-height:1.3;margin-top:7px}
+.vendorStatus.paid{background:#204c3b;color:#a5f1ce}.vendorStatus.review{background:#4a3c2b;color:#ffdaa3}.vendorStatus.alert{background:#693a39;color:#ffcdca}
+.vendorMoneyColumns{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0}.vendorMoneyColumns small{font-size:10px;display:block;color:#baabcb}
+.vendorMoneyColumns b{display:block;font-size:13px;margin-top:3px;color:#f4ecfa;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.vendorCommission{text-align:right}.vendorCommission small{display:block;font-size:11px;color:#c6b8d3;line-height:1.5}
+.vendorCommission strong{display:block;font-size:18px;color:#edd5ff;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.vendorRefundMini{grid-column:2/-1;font-size:11px;color:#ffd9a3;line-height:1.5}
+.vendorEmpty{border:1px dashed #635170;border-radius:12px;background:#292230;padding:24px 12px;text-align:center;color:#cdbfda;font-size:13px}
+.vendorActionBar{margin-top:15px;background:#34243f;border:1px solid #795996;border-radius:14px;padding:14px;display:grid;gap:12px}
+.vendorActionSummary{display:flex;justify-content:space-between;align-items:center;gap:7px;flex-wrap:wrap}
+.vendorActionSummary span{font-size:12px;color:#d4c4df}.vendorActionSummary strong{font-size:23px;color:#fff;font-variant-numeric:tabular-nums}
+.vendorActionGrid{display:grid;grid-template-columns:minmax(120px,1fr) auto;gap:8px;align-items:end}
+.vendorActionGrid label{display:block;font-size:11px;color:#d9cbe6;margin-bottom:4px}
+.vendorActionGrid input{width:100%;min-height:43px;padding:9px 10px;background:#231b2c;color:#fff;border:1px solid #8567a2;border-radius:9px}
+.adminDrawer .vendorActionGrid button{min-height:43px!important;padding:10px 15px!important;font-size:13px!important;font-weight:800}
+.vendorActionGrid button:disabled{opacity:.45;cursor:not-allowed}
+.vendorActionFoot{font-size:11px;color:#c1afce;line-height:1.6}
+.vendorBatchHistory{margin-top:14px;border:1px solid #544463;border-radius:12px;overflow:hidden}
+.vendorBatchHistory summary{padding:13px 14px;background:#292231;cursor:pointer;font-weight:700}
+.vendorBatchHistory summary::marker{color:#c8a8ef}.vendorBatchHistory .vendorHistoryLine{padding:12px;border-top:1px solid #51445f;gap:10px}
+.vendorBatchHistory .vendorHistoryLine small{display:block;font-size:11px;color:#c5b7d0;line-height:1.6}
+.vendorBatchHistory .vendorHistoryLine strong,.vendorBatchHistory .vendorHistoryLine b{overflow-wrap:anywhere;font-size:12px}
+.vendorBatchHistoryInner{padding:0 12px 12px}
+.vendorPanel [hidden]{display:none!important}
+@media(max-width:680px){.vendorStats{grid-template-columns:repeat(2,minmax(0,1fr))!important}.vendorStat strong{font-size:18px}.vendorFilters{grid-template-columns:1fr 1fr}.vendorFilters>div:last-child{grid-column:1/-1}.vendorOrderRow{grid-template-columns:28px minmax(0,1fr) auto;gap:6px 9px;padding:12px}.vendorMoneyColumns{grid-column:2/-1;grid-row:2}.vendorCommission{grid-column:3;grid-row:1}.vendorCommission strong{font-size:16px}.vendorActionGrid{grid-template-columns:1fr}.vendorActionGrid button{width:100%}.vendorPeriodShortcuts button{flex:1 1 auto}.vendorTabs button{flex:1 1 auto}.vendorOrderInfo small{font-size:10px}}
+@media(max-width:360px){.vendorStats{gap:6px}.vendorStat{padding:10px 8px}.vendorStat strong{font-size:16px}.vendorOrderRow{gap:8px}.vendorMoneyColumns b{font-size:12px}}
+
 </style></head>
 <body data-channel="partner" data-shop-name="瘋Toys 動漫公仔周邊"><main class="wrap">
  <header class="brand"><div><h1 id="shopBrand">瘋Toys 動漫公仔周邊</h1><small>JAPAN LIVE · 大阪連線</small></div><span class="headerTag" id="shopBadge">大阪連線</span></header>
@@ -803,50 +867,151 @@ async function adminSettings(){const o=await rpc('adminInfo',{token:state.token}
 async function savePartnerShopTitle(){try{const r=await rpc('setPartnerTitle',{token:state.token,name:$('#partnerShopTitle').value});notify('已儲存：'+r.name+'（需重新整理前台才會顯示）');}catch(e){notify(e.message,true);}}
 async function saveBank(ch='wanye'){try{const p=ch==='partner'?'partnerBank':'bank';await rpc('setBank',{token:state.token,bankChannel:ch,name:$('#'+p+'Name').value,holder:$('#'+p+'Holder').value,account:$('#'+p+'Account').value});notify((ch==='partner'?'合作廠商':'頑夜')+'收款資料已儲存');}catch(e){notify(e.message,true);}}
 
-// V9.8：廠商結算皆由 GAS 計算、核對及寫入，前台只做篩選和人工確認。
+// V10.0.2：只改 UI；帳款資格與分潤金額均以 GAS 回傳及驗證為準。
 let vendorSettleSnapshot=null;
+let vendorActiveTab='pending';
+let vendorCurrentPreset='all';
+let vendorSettlementBusy=false;
 const vendorMoney=n=>'NT$'+Number(n||0).toLocaleString('zh-TW');
-function vendorPeriodTime(d,end){if(!d)return end?Infinity:-Infinity;const a=new Date(d+'T00:00:00');if(!Number.isFinite(+a))return end?Infinity:-Infinity;if(end)a.setDate(a.getDate()+1);return +a;}
-function vendorPeriodItems(){if(!vendorSettleSnapshot)return [];const from=vendorPeriodTime($('#vendorStart')?.value,false),to=vendorPeriodTime($('#vendorEnd')?.value,true);return vendorSettleSnapshot.entries.filter(o=>o.createdAt>=from&&o.createdAt<to);}
-function setVendorFilter(v){if(v==='all'){const x=$('#vendorStart'),y=$('#vendorEnd');if(x)x.value='';if(y)y.value='';}renderVendorSettlementList();}
-function vendorPickAll(checked){document.querySelectorAll('.vendorPick:not(:disabled)').forEach(x=>x.checked=checked);updateVendorPicked();}
-function updateVendorPicked(){const os=vendorPeriodItems(),selected=new Set([...document.querySelectorAll('.vendorPick:checked')].map(x=>x.value));const chosen=os.filter(x=>selected.has(x.id));const total=chosen.reduce((n,x)=>n+x.commissionTwd,0);const el=$('#vendorPickedTotal');if(el)el.textContent='勾選 '+chosen.length+' 筆 · 應結給瘋Toys '+vendorMoney(total);}
+const vendorSum=(items,k)=>items.reduce((sum,o)=>sum+Number(o[k]||0),0);
+function vendorPeriodTime(d,end){
+ if(!d)return end?Infinity:-Infinity;
+ const a=new Date(d+'T00:00:00');
+ if(!Number.isFinite(+a))return end?Infinity:-Infinity;
+ if(end)a.setDate(a.getDate()+1);
+ return +a;
+}
+function vendorDateInput(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function vendorPeriodItems(){
+ if(!vendorSettleSnapshot)return [];
+ const from=vendorPeriodTime($('#vendorStart')?.value,false),to=vendorPeriodTime($('#vendorEnd')?.value,true);
+ return (vendorSettleSnapshot.entries||[]).filter(o=>o.createdAt>=from&&o.createdAt<to);
+}
+function vendorKind(o){if(o.refundAlert)return 'alert';if(o.settled)return 'settled';return o.eligible?'pending':'review';}
+function vendorTabItems(os){
+ const query=($('#vendorSearch')?.value||'').trim().toLocaleLowerCase();
+ return os.filter(o=> (vendorActiveTab==='all'||vendorKind(o)===vendorActiveTab||(vendorActiveTab==='settled'&&o.settled)) && (!query || String(o.id||'').toLocaleLowerCase().includes(query)||String(o.customerName||'').toLocaleLowerCase().includes(query)||String(o.batchId||'').toLocaleLowerCase().includes(query)));
+}
+function vendorClearChosen(){document.querySelectorAll('.vendorPick:checked').forEach(x=>x.checked=false);updateVendorPicked();}
+function vendorSetTab(v){vendorActiveTab=v;renderVendorSettlementList();}
+function vendorPreset(v){
+ const a=$('#vendorStart'),b=$('#vendorEnd');if(!a||!b)return;
+ const now=new Date(),year=now.getFullYear(),month=now.getMonth();
+ let start=null,end=null;
+ if(v==='current'){const m=now.getDate()>=20?month:month-1;start=new Date(year,m,20);end=new Date(year,m+1,19);}
+ if(v==='previous'){const m=now.getDate()>=20?month-1:month-2;start=new Date(year,m,20);end=new Date(year,m+1,19);}
+ if(v==='month'){start=new Date(year,month,1);end=new Date(year,month+1,0);}
+ if(v==='30'){start=new Date(year,month,now.getDate()-29);end=now;}
+ a.value=start?vendorDateInput(start):'';b.value=end?vendorDateInput(end):'';
+ vendorCurrentPreset=v;renderVendorSettlementList();
+}
+function vendorManualPeriod(){vendorCurrentPreset='custom';renderVendorSettlementList();}
+function vendorPickAll(checked){
+ let n=0;
+ document.querySelectorAll('.vendorPick:not(:disabled)').forEach(x=>{const allow=checked&&n<100;x.checked=allow;if(allow)n++});
+ updateVendorPicked();
+ if(checked&&document.querySelectorAll('.vendorPick:not(:disabled)').length>100)notify('每批最多可結算 100 筆，請分批處理');
+}
+function vendorPickChanged(){
+ const checked=[...document.querySelectorAll('.vendorPick:checked')];
+ if(checked.length>100){checked[checked.length-1].checked=false;notify('每批最多可結算 100 筆',true);}
+ updateVendorPicked();
+}
+function vendorSelectedRecords(){
+ const selected=new Set([...document.querySelectorAll('.vendorPick:checked')].map(x=>x.value));
+ return vendorTabItems(vendorPeriodItems()).filter(o=>o.eligible&&!o.settled&&selected.has(o.id));
+}
+function updateVendorPicked(){
+ const chosen=vendorSelectedRecords(),amt=vendorSum(chosen,'commissionTwd');
+ const count=$('#vendorSelectedCount'),total=$('#vendorSelectedAmount'),btn=$('#vendorPayConfirm');
+ if(count)count.textContent='已選 '+chosen.length+' 筆訂單';
+ if(total)total.textContent=vendorMoney(amt);
+ if(btn)btn.disabled=vendorSettlementBusy||chosen.length===0;
+ document.querySelectorAll('.vendorOrderRow').forEach(el=>{const check=el.querySelector('input.vendorPick');el.classList.toggle('selected',!!check?.checked);});
+}
 function renderVendorSettlementList(){
  if(!vendorSettleSnapshot)return;
- const os=vendorPeriodItems(),pending=os.filter(x=>x.eligible&&!x.settled),done=os.filter(x=>x.settled),alerts=os.filter(x=>x.refundAlert);
- const sum=(xs,k)=>xs.reduce((n,o)=>n+Number(o[k]||0),0);
- const e=$('#vendorStats');if(e)e.innerHTML=`<div class="vendorStat"><small>未結算筆數</small><strong>${pending.length}</strong></div><div class="vendorStat"><small>本區間未結分潤</small><strong>${vendorMoney(sum(pending,'commissionTwd'))}</strong></div><div class="vendorStat"><small>本區間已結分潤</small><strong>${vendorMoney(sum(done,'commissionTwd'))}</strong></div>`;
- const wrap=$('#vendorRows');if(!wrap)return;
- wrap.innerHTML=pending.map(o=>`<label class="vendorLine"><input type="checkbox" class="vendorPick" value="${H(o.id)}" onchange="updateVendorPicked()"><div class="vendorLineInfo"><strong>${H(o.id)}</strong><small>${date(o.createdAt)} · ${H(o.customerName||'未填姓名')} · ${H(statusName[o.status]||o.status)}</small><small>商品 ${yen(o.totalJpy)} → 客付 ${vendorMoney(o.amountTwd)} · 分潤 ×0.03</small></div><b>${vendorMoney(o.commissionTwd)}</b></label>`).join('')||'<p class="muted">這個日期範圍目前沒有待結算、已確認收款的瘋Toys 訂單。</p>';
- const history=$('#vendorHistory');if(history)history.innerHTML=done.slice(0,100).map(o=>`<div class="vendorHistoryLine"><div><strong>${H(o.id)}</strong><small>${date(o.settledAt)} · 批次 ${H(o.batchId)}</small>${o.refundAlert?'<small class="error">此訂單已結算但目前待退款／已取消，請人工處理分潤扣回</small>':''}</div><b>${vendorMoney(o.commissionTwd)}</b></div>`).join('')||'<p class="muted">此日期範圍尚無已結算訂單。</p>';
- const a=$('#vendorRefundAlerts');if(a){a.hidden=!alerts.length;if(alerts.length)a.textContent=`注意：此範圍有 ${alerts.length} 筆「已付廠商分潤、後來待退款／取消」訂單。系統不會自動扣回已匯款金額，請人工核對。`;}
+ const os=vendorPeriodItems(),pending=os.filter(o=>o.eligible&&!o.settled),done=os.filter(o=>o.settled),alerts=os.filter(o=>o.refundAlert),review=os.filter(o=>!o.settled&&!o.eligible);
+ const stats=$('#vendorStats');
+ if(stats)stats.innerHTML=`<div class="vendorStat primaryStat"><small>目前待付給瘋Toys</small><strong>${vendorMoney(vendorSum(pending,'commissionTwd'))}</strong></div><div class="vendorStat"><small>可結算訂單</small><strong>${pending.length} 筆</strong></div><div class="vendorStat"><small>已結算分潤</small><strong>${vendorMoney(vendorSum(done,'commissionTwd'))}</strong></div><div class="vendorStat ${alerts.length?'warningStat':''}"><small>退款扣回提醒</small><strong>${alerts.length} 筆</strong></div>`;
+ const tabCounts={pending:pending.length,settled:done.length,review:review.length,alert:alerts.length,all:os.length};
+ document.querySelectorAll('[data-vendor-tab]').forEach(btn=>{const v=btn.getAttribute('data-vendor-tab');btn.classList.toggle('on',v===vendorActiveTab);btn.setAttribute('aria-pressed',String(v===vendorActiveTab));const c=btn.querySelector('.vendorTabCount');if(c)c.textContent=tabCounts[v]||0;});
+ document.querySelectorAll('[data-vendor-preset]').forEach(btn=>{const selected=btn.getAttribute('data-vendor-preset')===vendorCurrentPreset;btn.classList.toggle('on',selected);btn.setAttribute('aria-pressed',String(selected));});
+ const note=$('#vendorRefundAlerts');
+ if(note){note.hidden=alerts.length===0;if(alerts.length)note.textContent=`這個下單日期區間有 ${alerts.length} 筆已結分潤，但訂單後續退款或取消。請人工核對扣回；系統不會自動扣回款項。`;}
+ const lines=vendorTabItems(os),wrap=$('#vendorRows');if(!wrap)return;
+ const labels={pending:'待結算訂單',settled:'已結算訂單',review:'尚不可結算',alert:'退款／扣回提醒',all:'全部訂單'};
+ const title=$('#vendorListTitle'),shown=$('#vendorShownCount'),actions=$('#vendorListActions'),batch=$('#vendorActionBar');
+ if(title)title.textContent=labels[vendorActiveTab];if(shown)shown.textContent='顯示 '+lines.length+' 筆';
+ if(actions)actions.hidden=!lines.some(o=>o.eligible&&!o.settled);
+ if(batch)batch.hidden=!lines.some(o=>o.eligible&&!o.settled);
+ const statusText={pending:'可結算',settled:'已付廠商',review:'尚不可結算',alert:'待人工扣回'};
+ wrap.innerHTML=lines.map(o=>{
+  const kind=vendorKind(o),pickable=o.eligible&&!o.settled;
+  return `<div class="vendorOrderRow ${kind==='alert'?'alertRow':''}">
+    <label class="vendorOrderTick" title="${pickable?'勾選結算':'此訂單不可結算'}">${pickable?`<input type="checkbox" class="vendorPick" value="${H(o.id)}" aria-label="勾選訂單 ${H(o.id)} 結算" onchange="vendorPickChanged()">`:'<span aria-hidden="true">—</span>'}</label>
+    <div class="vendorOrderInfo"><strong>${H(o.id)}</strong><small>${date(o.createdAt)} · ${H(o.customerName||'未填客戶')}</small><span class="vendorStatus ${kind==='settled'?'paid':kind}">${statusText[kind]}</span><small>${H(statusName[o.status]||o.status)}${o.settled?' · 批次 '+H(o.batchId):''}</small></div>
+    <div class="vendorMoneyColumns"><div><small>商品日幣</small><b>${yen(o.totalJpy)}</b></div><div><small>客付商品款</small><b>${vendorMoney(o.amountTwd)}</b></div></div>
+    <div class="vendorCommission"><small>廠商分潤 ×0.03</small><strong>${vendorMoney(o.commissionTwd)}</strong>${o.settled?`<small>結算 ${date(o.settledAt)}</small>`:''}</div>
+    ${kind==='alert'?'<div class="vendorRefundMini">此筆已付款給廠商，訂單後續退款／取消，請人工核對扣回。</div>':''}
+   </div>`;
+ }).join('')||'<div class="vendorEmpty">這個篩選條件沒有訂單。<br>可以切換上方狀態或點「全部日期」查看。</div>';
  updateVendorPicked();
 }
 async function adminVendorSettlement(){
  const raw=await rpc('vendorSettlementData',{token:state.token});vendorSettleSnapshot=raw;
- $('#adminInner').innerHTML=`<section class="panel"><div class="row between"><div><h2 style="margin-bottom:2px">瘋Toys 廠商結單</h2><p class="hint">僅計入瘋Toys（0.27）實際確認收款、未退款訂單；廠商分潤＝每筆日幣商品款 ×0.03 四捨五入。國際運費不分潤。</p></div><button onclick="exportVendorSettlementCsv()">匯出結算 CSV</button></div>
-  <div class="vendorFilters"><div><label>下單起始日</label><input id="vendorStart" type="date" onchange="renderVendorSettlementList()"></div><div><label>下單截止日</label><input id="vendorEnd" type="date" onchange="renderVendorSettlementList()"></div><button onclick="setVendorFilter('all')">全部日期</button></div>
-  <div id="vendorStats" class="vendorStats"></div><div id="vendorRefundAlerts" class="checkoutWarning" hidden></div><hr><h3>未結算清單</h3><div class="row"><button onclick="vendorPickAll(true)">勾選全部符合條件</button><button onclick="vendorPickAll(false)">取消勾選</button></div>
-  <div id="vendorRows" class="vendorRows"></div><p id="vendorPickedTotal" class="notice" style="font-weight:700"></p><div class="field"><label for="vendorSettlementNote">本次結單備註（選填，例如轉帳日期／末五碼）</label><input id="vendorSettlementNote" maxlength="120" placeholder="例如 10/25 已匯款 末五碼12345"></div><button class="primary" onclick="confirmVendorSettlementNow()">確認已付廠商分潤（勾選訂單）</button>
-  <p class="hint">請確定已實際把款項結給廠商才按下確認；一旦確認，這些訂單不會再出現在未結算清單。</p></section>
-  <section class="panel"><h3>已結算訂單</h3><div id="vendorHistory"></div></section>
-  <section class="panel"><h3>結單批次紀錄</h3><div class="vendorRows">${(raw.batches||[]).slice(0,60).map(b=>`<div class="vendorHistoryLine"><div><strong>${H(b.batchId)}</strong><small>${date(b.settledAt)} · ${b.count} 筆訂單 · ${H(b.note||'無備註')}</small></div><b>${vendorMoney(b.commissionTwd)}</b></div>`).join('')||'<p class="muted">目前沒有已確認結算的批次。</p>'}</div></section>`;
+ vendorActiveTab='pending';vendorCurrentPreset='all';vendorSettlementBusy=false;
+ const batches=(raw.batches||[]).slice(0,100);
+ $('#adminInner').innerHTML=`<section class="panel vendorPanel">
+ <div class="vendorIntro"><div><div class="vendorKicker">VENDOR SETTLEMENT · ×0.03</div><h2>瘋Toys 廠商結單</h2><p>可結算訂單須為瘋Toys（×0.27）已確認收款且未退款；每筆商品日幣金額 ×0.03，四捨五入為台幣分潤。國際運費不分潤。</p></div><button class="vendorExport" onclick="exportVendorSettlementCsv()">匯出目前篩選 CSV</button></div>
+ <div id="vendorStats" class="vendorStats"></div>
+ <div class="vendorPeriodShortcuts" role="group" aria-label="快速選擇下單日期">
+ <button type="button" data-vendor-preset="all" onclick="vendorPreset('all')">全部日期</button>
+ <button type="button" data-vendor-preset="current" onclick="vendorPreset('current')">本期（20日結）</button>
+ <button type="button" data-vendor-preset="previous" onclick="vendorPreset('previous')">上期</button>
+ <button type="button" data-vendor-preset="month" onclick="vendorPreset('month')">本月</button>
+ <button type="button" data-vendor-preset="30" onclick="vendorPreset('30')">近30日</button>
+ </div>
+ <div class="vendorFilters"><div><label for="vendorStart">下單起始日</label><input id="vendorStart" type="date" onchange="vendorManualPeriod()"></div><div><label for="vendorEnd">下單截止日</label><input id="vendorEnd" type="date" onchange="vendorManualPeriod()"></div><div><label for="vendorSearch">搜尋訂單／客人／結算批次</label><input id="vendorSearch" type="search" placeholder="搜尋編號或姓名" oninput="renderVendorSettlementList()"></div></div>
+ <p class="vendorToolbarHelp">日期以「客人下單日」篩選；本期為每月 20 日至次月 19 日。上方統計依日期範圍計算，搜尋僅篩選下方清單。</p>
+ <div id="vendorRefundAlerts" class="checkoutWarning" hidden></div>
+ <div class="vendorTabs" role="group" aria-label="結單狀態">
+ <button type="button" data-vendor-tab="pending" onclick="vendorSetTab('pending')">待結算 <span class="vendorTabCount"></span></button>
+ <button type="button" data-vendor-tab="settled" onclick="vendorSetTab('settled')">已結算 <span class="vendorTabCount"></span></button>
+ <button type="button" data-vendor-tab="review" onclick="vendorSetTab('review')">尚不可結 <span class="vendorTabCount"></span></button>
+ <button type="button" data-vendor-tab="alert" onclick="vendorSetTab('alert')">退款提醒 <span class="vendorTabCount"></span></button>
+ <button type="button" data-vendor-tab="all" onclick="vendorSetTab('all')">全部 <span class="vendorTabCount"></span></button>
+ </div>
+ <div class="vendorListTop"><div><strong id="vendorListTitle">待結算訂單</strong> <small id="vendorShownCount"></small></div><div id="vendorListActions" class="vendorListActions"><button type="button" onclick="vendorPickAll(true)">全選本頁（最多100筆）</button><button type="button" onclick="vendorPickAll(false)">清除勾選</button></div></div>
+ <div id="vendorRows" class="vendorRows"></div>
+ <div id="vendorActionBar" class="vendorActionBar"><div class="vendorActionSummary"><span id="vendorSelectedCount">已選 0 筆訂單</span><strong id="vendorSelectedAmount">NT$0</strong></div>
+ <div class="vendorActionGrid"><div><label for="vendorSettlementNote">匯款備註（選填：日期、末五碼）</label><input id="vendorSettlementNote" maxlength="120" placeholder="例如 10/25 轉帳，末五碼 12345"></div><button id="vendorPayConfirm" type="button" class="primary" onclick="confirmVendorSettlementNow()" disabled>確認已匯款並結單</button></div>
+ <div class="vendorActionFoot">只有已實際匯給瘋Toys 的款項才按「確認已匯款」。系統只記帳，不會自動轉帳；確認後不可重複結算。</div></div>
+ <details class="vendorBatchHistory"><summary>查看結單批次歷史（${batches.length} 筆顯示）</summary><div class="vendorBatchHistoryInner">${batches.map(b=>`<div class="vendorHistoryLine"><div><strong>${H(b.batchId)}</strong><small>${date(b.settledAt)} · ${Number(b.count)||0} 筆訂單</small><small>${H(b.note||'無備註')}</small></div><b>${vendorMoney(b.commissionTwd)}</b></div>`).join('')||'<p class="muted">目前沒有已確認結算的批次。</p>'}</div></details>
+ </section>`;
  renderVendorSettlementList();
 }
 async function confirmVendorSettlementNow(){
- const ids=[...document.querySelectorAll('.vendorPick:checked')].map(x=>x.value);
- if(!ids.length)return notify('請先勾選要結單的訂單',true);
- if(ids.length>100)return notify('每批最多結算100筆，請分批操作',true);
- const records=vendorPeriodItems().filter(x=>ids.includes(x.id)),amt=records.reduce((n,x)=>n+x.commissionTwd,0),note=($('#vendorSettlementNote')?.value||'').trim();
- if(!confirm(`請確認已實際支付瘋Toys 分潤：\n${ids.length} 筆訂單，總計 ${vendorMoney(amt)}。\n\n按確定後會留下不可重複結算的紀錄。`))return;
- try{const r=await rpc('confirmVendorSettlement',{token:state.token,ids,note});notify(`已結算 ${r.count} 筆，廠商分潤 ${vendorMoney(r.commissionTwd)} · ${r.batchId}`);await adminVendorSettlement();}catch(e){notify(e.message,true);}
+ if(vendorSettlementBusy)return;
+ const records=vendorSelectedRecords(),ids=records.map(o=>o.id);
+ if(!ids.length)return notify('請先勾選可結算的訂單',true);
+ if(ids.length>100)return notify('每批最多結算 100 筆',true);
+ const amount=vendorSum(records,'commissionTwd'),note=($('#vendorSettlementNote')?.value||'').trim();
+ if(!confirm(`請確認「已實際匯款」給瘋Toys：\n\n訂單 ${ids.length} 筆\n廠商應得 ${vendorMoney(amount)}\n\n確認後會留下結算紀錄，且不能重複結算。`))return;
+ vendorSettlementBusy=true;updateVendorPicked();
+ try{
+  const r=await rpc('confirmVendorSettlement',{token:state.token,ids,note});
+  notify(`已記錄結算 ${r.count} 筆，${vendorMoney(r.commissionTwd)} · ${r.batchId}`);
+  await adminVendorSettlement();
+ }catch(e){notify(e.message,true);vendorSettlementBusy=false;updateVendorPicked();}
 }
 function exportVendorSettlementCsv(){
  if(!vendorSettleSnapshot)return notify('請重新載入廠商結單資料',true);
- const os=vendorPeriodItems(),head=['訂單編號','下單日期','付款日期','訂單狀態','客戶','日幣商品總額','客付台幣','廠商分潤台幣','頑夜留存台幣(未扣採購成本)','結算狀態','結單批次','結單日期','備註','退款扣回警示'];
+ const os=vendorTabItems(vendorPeriodItems()),head=['訂單編號','下單日期','付款日期','訂單狀態','客戶','商品日幣總額','商品款台幣','廠商分潤台幣','頑夜留存台幣(未扣採購成本)','結算狀態','結單批次','結單日期','備註','退款扣回警示'];
  const cell=x=>'"'+String(x===undefined||x===null?'':x).replace(/^[\s]*[=+\-@]/,"'").replace(/"/g,'""')+'"';
  const lines=[head,...os.map(o=>[o.id,new Date(o.createdAt).toLocaleDateString('zh-TW'),o.paidAt?new Date(o.paidAt).toLocaleDateString('zh-TW'):'',statusName[o.status]||o.status,o.customerName,o.totalJpy,o.amountTwd,o.commissionTwd,o.retainedTwd,o.settled?'已結':'未結',o.batchId,o.settledAt?new Date(o.settledAt).toLocaleString('zh-TW'):'',o.note,o.refundAlert?'需要人工扣回':''])];
- const csv='\uFEFF'+lines.map(r=>r.map(cell).join(',')).join('\r\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='瘋Toys_廠商結單_'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+ const csv='\uFEFF'+lines.map(row=>row.map(cell).join(',')).join('\r\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
+ a.href=url;a.download='瘋Toys_結單_'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
 }
 
 async function exportCsv(type){try{const d=await rpc('export',{token:state.token,type});function cv(v){let s=String(v===null||v===undefined?'':v);if(/^[\s]*[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
